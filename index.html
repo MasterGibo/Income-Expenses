@@ -1,920 +1,2245 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Gibo Finance Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase JS v2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* --- GLASSMORPHISM THEME VARIABLES --- */
-        :root {
-            /* Light Mode Gradient Background */
-            --bg-body: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            
-            /* Glass Effects */
-            --glass-bg: rgba(255, 255, 255, 0.55);
-            --glass-bg-strong: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-            
-            /* Text & Accents */
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --primary-accent: #2563eb;
-            --inc-color: #16a34a;
-            --exp-color: #dc2626;
-            
-            /* Overall Dashboard Highlights */
-            --overall-bg: rgba(15, 23, 42, 0.8);
-            --overall-text: #ffffff;
-            --overall-border: rgba(255, 255, 255, 0.2);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>PesoFlow — Daily Income & Expense Tracker (₱)</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <!-- Supabase JS v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slatebase: '#0b1120',
+            carddark: '#111827',
+          }
         }
+      }
+    };
+  </script>
 
-        [data-theme="dark"] {
-            /* Dark Mode Gradient Background */
-            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            
-            /* Glass Effects */
-            --glass-bg: rgba(30, 41, 59, 0.45);
-            --glass-bg-strong: rgba(15, 23, 42, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            
-            /* Text & Accents */
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary-accent: #3b82f6;
-            --inc-color: #4ade80;
-            --exp-color: #f87171;
-            
-            /* Overall Dashboard Highlights */
-            --overall-bg: rgba(2, 6, 23, 0.6);
-            --overall-text: #f8fafc;
-            --overall-border: rgba(255, 255, 255, 0.05);
-        }
+  <style>
+    /* Prevent horizontal overflow on small mobile devices */
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
 
-        /* --- GLOBAL STYLES --- */
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
-        
-        body { 
-            background: var(--bg-body); 
-            background-attachment: fixed;
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 30px 15px; 
-            min-height: 100vh;
-        }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.45);
+    }
 
-        /* --- GLASSMORPHISM UTILITY CLASS --- */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            border-radius: 14px;
-        }
+    /* Glassmorphic cards */
+    .glass-card {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dark .glass-card {
+      background: linear-gradient(155deg, rgba(17, 24, 39, 0.86), rgba(11, 17, 32, 0.94));
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.65);
+    }
+    html:not(.dark) .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      box-shadow: 0 10px 25px -10px rgba(15, 23, 42, 0.08);
+    }
 
-        .container {
-            max-width: 1050px; 
-            margin: 0 auto; 
-            padding: 35px 40px; 
-        }
+    /* Ambient background */
+    .dark body {
+      background-color: #0b1120;
+      background-image:
+        radial-gradient(circle at 10% 8%, rgba(16, 185, 129, 0.10), transparent 34%),
+        radial-gradient(circle at 90% 12%, rgba(99, 102, 241, 0.11), transparent 36%),
+        radial-gradient(circle at 50% 95%, rgba(244, 63, 94, 0.08), transparent 40%);
+    }
+    html:not(.dark) body {
+      background-color: #f1f5f9;
+      background-image:
+        radial-gradient(circle at 12% 10%, rgba(16, 185, 129, 0.08), transparent 35%),
+        radial-gradient(circle at 88% 15%, rgba(99, 102, 241, 0.08), transparent 35%);
+    }
 
-        /* --- HEADER & THEME TOGGLE --- */
-        .header-top { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px; }
-        .header-title { margin: 0; }
-        h1 { margin: 0; color: var(--text-main); font-weight: 700; font-size: 28px; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .subtitle-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-        .subtitle { color: var(--text-muted); font-size: 14px; }
+    /* Dark mode native date/month icon */
+    .dark input[type="date"]::-webkit-calendar-picker-indicator,
+    .dark input[type="month"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.75;
+      cursor: pointer;
+    }
 
-        .cloud-badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 999px;
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg-strong);
-            color: var(--text-main);
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .cloud-badge.online {
-            color: #065f46;
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(16, 185, 129, 0.4);
-        }
-        [data-theme="dark"] .cloud-badge.online {
-            color: #6ee7b7;
-            background: rgba(16, 185, 129, 0.15);
-        }
-        .cloud-badge.offline {
-            color: #92400e;
-            background: rgba(245, 158, 11, 0.2);
-            border-color: rgba(245, 158, 11, 0.4);
-        }
-        [data-theme="dark"] .cloud-badge.offline {
-            color: #fcd34d;
-            background: rgba(245, 158, 11, 0.15);
-        }
-
-        .header-actions { display: flex; align-items: center; gap: 8px; }
-        
-        .theme-toggle {
-            background: var(--overall-bg); color: var(--overall-text); border: 1px solid var(--overall-border); 
-            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;
-            backdrop-filter: blur(10px);
-        }
-        .theme-toggle:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* --- OVERALL DASHBOARD --- */
-        .overall-dashboard {
-            display: flex; justify-content: space-between; 
-            background: var(--overall-bg); color: var(--overall-text);
-            padding: 25px 40px; border-radius: 14px; margin-bottom: 30px; 
-            box-shadow: var(--glass-shadow); backdrop-filter: blur(20px); border: 1px solid var(--overall-border);
-        }
-        .overall-item { text-align: center; flex: 1; }
-        .overall-item.middle { border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1); }
-        .overall-item h4 { margin: 0 0 8px 0; font-size: 12px; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
-        .overall-item p { margin: 0; font-size: 26px; font-weight: 700; }
-        .overall-item .highlight { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
-
-        /* --- SECTION TITLES --- */
-        .section-title { font-size: 15px; color: var(--text-main); margin-bottom: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
-        .section-title::after { content: ""; flex: 1; height: 1px; background: var(--glass-border); }
-
-        .filter-section { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; margin-bottom: 20px; }
-
-        /* --- SUMMARY CARDS --- */
-        .summary-cards { display: flex; gap: 15px; margin-bottom: 30px; }
-        .card { flex: 1; padding: 25px 20px; text-align: center; transition: transform 0.2s; }
-        .card:hover { transform: translateY(-3px); }
-        .card h3 { margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
-        .card p { margin: 0; font-size: 24px; font-weight: 700; }
-        .val-inc { color: var(--inc-color); } .val-exp { color: var(--exp-color); } .val-bal { color: var(--primary-accent); }
-
-        /* --- CATEGORY BREAKDOWN --- */
-        .breakdown-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 35px; }
-        .breakdown-box { padding: 20px; }
-        .breakdown-box h4 { margin: 0 0 15px 0; font-size: 13px; color: var(--text-main); text-transform: uppercase; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; }
-        .cat-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px dashed var(--glass-border); color: var(--text-main); }
-        .cat-row:last-child { border-bottom: none; }
-        .cat-amount { font-weight: 600; }
-        .cat-amount.inc { color: var(--inc-color); } .cat-amount.exp { color: var(--exp-color); }
-        .empty-cat { font-size: 13px; color: var(--text-muted); font-style: italic; text-align: center; margin-top: 10px; }
-
-        /* --- FORM CONTROLS (GLASS STYLE) --- */
-        input, select, button { 
-            padding: 10px 14px; font-size: 13px; 
-            background: var(--glass-bg-strong); color: var(--text-main); 
-            border: 1px solid var(--glass-border); border-radius: 8px; outline: none; 
-            backdrop-filter: blur(8px);
-        }
-        input:focus, select:focus { border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
-        
-        /* Makes the Calendar Icon White in Dark Mode */
-        [data-theme="dark"] input[type="date"], 
-        [data-theme="dark"] input[type="month"] {
-            color-scheme: dark;
-        }
-
-        form { display: flex; flex-wrap: wrap; gap: 15px; padding: 25px; margin-bottom: 35px; align-items: flex-end; }
-        form.editing-mode {
-            border: 2px solid var(--primary-accent);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-        }
-        
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
-        
-        .category-wrapper { display: flex; gap: 6px; align-items: center; }
-        .category-wrapper select { min-width: 160px; }
-        .btn-action { padding: 9px 12px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); font-size: 12px; font-weight: 600; }
-        .btn-action:hover { background: var(--glass-bg-strong); }
-
-        .form-buttons { display: flex; gap: 8px; align-items: center; }
-        .btn-submit { background-color: var(--primary-accent); color: white; cursor: pointer; border: none; font-weight: 600; padding: 11px 24px; height: 40px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
-        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-cancel-edit { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); cursor: pointer; font-weight: 600; padding: 10px 16px; height: 40px; }
-        .btn-cancel-edit:hover { color: var(--text-main); background: var(--glass-bg-strong); }
-
-        /* --- TABLE (GLASS STYLE) --- */
-        .table-wrapper { overflow-x: auto; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; overflow: hidden; }
-        th, td { padding: 15px; border-bottom: 1px solid var(--glass-border); text-align: left; }
-        th { color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 12px; background: rgba(0,0,0,0.03); }
-        [data-theme="dark"] th { background: rgba(255,255,255,0.03); }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: rgba(0,0,0,0.02); }
-        [data-theme="dark"] tr:hover { background: rgba(255,255,255,0.02); }
-        
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-income { color: #065f46; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-expense { color: #991b1b; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3); }
-        [data-theme="dark"] .badge-income { color: #a7f3d0; background: rgba(16, 185, 129, 0.15); }
-        [data-theme="dark"] .badge-expense { color: #fecaca; background: rgba(239, 68, 68, 0.15); }
-
-        .action-cell { display: flex; gap: 6px; align-items: center; }
-        .edit-btn { background: transparent; color: var(--primary-accent); border: 1px solid var(--primary-accent); padding: 6px 11px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; }
-        .edit-btn:hover { background: var(--primary-accent); color: white; }
-        .delete-btn { background: transparent; color: var(--exp-color); border: 1px solid var(--exp-color); padding: 6px 11px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; }
-        .delete-btn:hover { background: var(--exp-color); color: white; }
-
-        /* --- BACKUP SECTION --- */
-        .backup-section { display: flex; gap: 15px; padding: 25px; justify-content: center; flex-wrap: wrap; }
-        .btn-export { background: var(--text-main); color: var(--glass-bg-strong); border: none; font-weight: 600; cursor: pointer; }
-        .btn-import { background: transparent; color: var(--text-main); border: 1px solid var(--text-main); font-weight: 600; cursor: pointer; }
-        .btn-export:hover, .btn-import:hover { opacity: 0.8; transform: translateY(-1px); }
-
-        @media (max-width: 850px) {
-            .container { padding: 20px; }
-            .overall-dashboard { flex-direction: column; gap: 15px; padding: 20px; }
-            .overall-item.middle { border-left: none; border-right: none; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px 0; }
-            form { flex-direction: column; align-items: stretch; }
-            .category-wrapper { flex-wrap: wrap; }
-            .summary-cards { flex-direction: column; }
-            .breakdown-container { grid-template-columns: 1fr; }
-        }
-    </style>
+    /* Minimum 44px touch target helper */
+    .touch-target {
+      min-height: 44px;
+    }
+  </style>
 </head>
-<body>
+<body class="font-sans text-slate-800 dark:text-slate-100 min-h-screen antialiased pb-24 lg:pb-10 selection:bg-indigo-500 selection:text-white">
 
-<div class="container glass-panel">
-    <div class="header-top">
-        <div class="header-title">
-            <h1>Master Gibo Finance Tracker</h1>
-            <div class="subtitle-row">
-                <span class="subtitle">Premium Glassmorphism Dashboard</span>
-                <span id="cloudStatusBadge" class="cloud-badge">🔄 Connecting to Supabase...</span>
+  <!-- Toast Notification Stack -->
+  <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto z-[70] flex flex-col gap-2 pointer-events-none sm:max-w-sm"></div>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-[65] hidden items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4">
+    <div class="glass-card rounded-2xl max-w-md w-full p-5 sm:p-6 border border-slate-700/70 shadow-2xl">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <h3 id="confirm-title" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Confirm Action</h3>
+      </div>
+      <p id="confirm-message" class="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+        Are you sure you want to proceed?
+      </p>
+      <div class="flex justify-end gap-2.5">
+        <button id="confirm-cancel-btn" class="touch-target px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+          Cancel
+        </button>
+        <button id="confirm-ok-btn" class="touch-target px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/25 transition">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 1: CUSTOMIZE CATEGORIES MANAGER                                   -->
+  <!-- ======================================================================= -->
+  <div id="categories-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
+    <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+            <i data-lucide="tags" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Manage Custom Categories</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Add, edit, or delete your own Income & Expense categories</p>
+          </div>
+        </div>
+        <button id="close-categories-modal" class="touch-target w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-5">
+        <!-- Add / Edit Category Form -->
+        <form id="category-form" class="p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
+          <input type="hidden" id="cat-edit-id" value="" />
+          <div class="flex items-center justify-between">
+            <span id="cat-form-title" class="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">
+              Add New Category
+            </span>
+            <button type="button" id="cat-cancel-edit" class="hidden text-xs font-semibold text-amber-400 hover:underline">
+              Cancel Edit
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <!-- Category Type -->
+            <div class="sm:col-span-4">
+              <label for="cat-type" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Type</label>
+              <select id="cat-type" class="touch-target w-full px-3 py-2 rounded-xl bg-white dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
             </div>
+
+            <!-- Category Name -->
+            <div class="sm:col-span-6">
+              <label for="cat-name" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Category Name</label>
+              <input
+                type="text"
+                id="cat-name"
+                required
+                maxlength="40"
+                placeholder="e.g. Salary, Groceries, Gas..."
+                class="touch-target w-full px-3 py-2 rounded-xl bg-white dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <!-- Badge Color -->
+            <div class="sm:col-span-2">
+              <label for="cat-color" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Color</label>
+              <input
+                type="color"
+                id="cat-color"
+                value="#6366f1"
+                class="touch-target w-full h-11 p-1 rounded-xl bg-white dark:bg-slatebase border border-slate-300 dark:border-slate-700 cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <button type="submit" id="cat-submit-btn" class="touch-target w-full py-2.5 px-4 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span id="cat-submit-label">Save Category</span>
+          </button>
+        </form>
+
+        <!-- Filter Tabs inside Modal -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
+            <button type="button" id="cat-tab-expense" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition">
+              Expense Categories
+            </button>
+            <button type="button" id="cat-tab-income" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
+              Income Categories
+            </button>
+          </div>
+          <span id="cat-list-count" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 items</span>
         </div>
-        <div class="header-actions">
-            <button class="theme-toggle" onclick="loadFromSupabase(true)" title="Refresh latest data from Supabase">↻ Sync</button>
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark Mode</button>
+
+        <!-- Existing Custom Categories List -->
+        <div id="custom-categories-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+          <!-- Rendered dynamically via JS -->
         </div>
+      </div>
     </div>
+  </div>
 
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-        <button id="toggleOverallBtn" class="theme-toggle" onclick="toggleOverallSummary()" style="font-size: 11px; padding: 6px 12px; background: transparent;">👁️ Hide Overall Summary</button>
-    </div>
-
-    <div class="overall-dashboard" id="overallDashboard">
-        <div class="overall-item"><h4>All-Time Inflow</h4><p id="allTimeIncome" class="val-inc">₱0.00</p></div>
-        <div class="overall-item middle"><h4>All-Time Outflow</h4><p id="allTimeExpense" class="val-exp">₱0.00</p></div>
-        <div class="overall-item"><h4>Total Savings / Net</h4><p id="allTimeBalance" class="highlight">₱0.00</p></div>
-    </div>
-
-    <div class="section-title">Monthly Overview</div>
-    <div class="filter-section glass-panel">
-        <label for="monthFilter" style="font-weight: 600; font-size: 13px;">View Period:</label>
-        <input type="month" id="monthFilter" onchange="renderApp()">
-    </div>
-
-    <div class="summary-cards">
-        <div class="card glass-panel"><h3>Monthly Inflow</h3><p id="totalIncome" class="val-inc">₱0.00</p></div>
-        <div class="card glass-panel"><h3>Monthly Outflow</h3><p id="totalExpense" class="val-exp">₱0.00</p></div>
-        <div class="card glass-panel"><h3>Monthly Balance</h3><p id="netBalance" class="val-bal">₱0.00</p></div>
-    </div>
-
-    <div class="breakdown-container">
-        <div class="breakdown-box glass-panel"><h4>Inflow Breakdown</h4><div id="incCatList"></div></div>
-        <div class="breakdown-box glass-panel"><h4>Outflow Breakdown</h4><div id="expCatList"></div></div>
-    </div>
-
-    <div class="section-title" id="entrySectionTitle">Transaction Entry</div>
-    <form id="transactionForm" class="glass-panel" onsubmit="saveTransaction(event)">
-        <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="date" required>
+  <!-- ======================================================================= -->
+  <!-- MODAL 2: SUPABASE POSTGRESQL CONNECTION & SQL SCHEMA                    -->
+  <!-- ======================================================================= -->
+  <div id="supabase-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
+    <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+            <i data-lucide="database" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Supabase PostgreSQL Setup</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Connect your cloud database or copy the SQL schema</p>
+          </div>
         </div>
-        
-        <div class="form-group">
-            <label>Type</label>
-            <select id="type" required onchange="updateCategoryDropdown()">
-                <option value="Expense" selected>Expense</option>
-                <option value="Income">Income</option>
+        <button id="close-supabase-modal" class="touch-target w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-5">
+        <!-- Connection Status Banner -->
+        <div id="sb-modal-status" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 text-xs sm:text-sm text-amber-300">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
+            <span id="sb-modal-status-text">Currently running in Local Session Mode.</span>
+          </div>
+          <button type="button" id="sb-disconnect-btn" class="hidden px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition shrink-0">
+            Disconnect
+          </button>
+        </div>
+
+        <!-- Supabase Credentials Form -->
+        <form id="supabase-config-form" class="space-y-3.5">
+          <div>
+            <label for="sb-url" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+              Supabase Project URL
+            </label>
+            <input
+              type="url"
+              id="sb-url"
+              required
+              placeholder="https://your-project-id.supabase.co"
+              class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <div>
+            <label for="sb-anon-key" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+              Supabase Anon Public Key
+            </label>
+            <input
+              type="password"
+              id="sb-anon-key"
+              required
+              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <!-- Optional Remember Credentials in LocalStorage -->
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-600 dark:text-slate-300">
+              <input type="checkbox" id="sb-remember-local" class="w-4 h-4 rounded accent-emerald-500" />
+              <span>Remember credentials on this device (localStorage)</span>
+            </label>
+            <span class="text-[11px] text-slate-400">Default: sessionStorage</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <button type="submit" id="sb-connect-btn" class="touch-target py-2.5 px-4 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition">
+              <i data-lucide="plug-zap" class="w-4 h-4"></i>
+              Connect & Sync Data
+            </button>
+            <button type="button" id="sb-push-local-btn" class="touch-target py-2.5 px-4 rounded-xl text-sm font-semibold bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center gap-2 transition">
+              <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+              Upload Local Data to Supabase
+            </button>
+          </div>
+        </form>
+
+        <!-- PostgreSQL Schema Box -->
+        <div class="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                Supabase PostgreSQL Schema
+              </h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Run this script once in your Supabase Dashboard → SQL Editor
+              </p>
+            </div>
+            <button type="button" id="copy-sql-btn" class="touch-target px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow flex items-center gap-1.5 transition shrink-0">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              Copy SQL Schema
+            </button>
+          </div>
+
+          <pre id="sql-schema-code" class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-emerald-300 overflow-x-auto max-h-52 leading-relaxed select-all">-- 1. Create Custom Categories Table
+CREATE TABLE IF NOT EXISTS public.categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  color TEXT NOT NULL DEFAULT '#6366f1',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 2. Create Transactions Table
+CREATE TABLE IF NOT EXISTS public.transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
+  amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
+  category TEXT NOT NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  description TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- 3. Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_transactions_date ON public.transactions (date DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_type ON public.transactions (type);
+CREATE INDEX IF NOT EXISTS idx_categories_type ON public.categories (type);
+
+-- 4. Enable Row Level Security (RLS) & Open Policies for Personal Anon Key Usage
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow full access to categories" ON public.categories;
+CREATE POLICY "Allow full access to categories"
+  ON public.categories FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow full access to transactions" ON public.transactions;
+CREATE POLICY "Allow full access to transactions"
+  ON public.transactions FOR ALL
+  USING (true)
+  WITH CHECK (true);</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- TOP NAVIGATION HEADER (MOBILE-FIRST COMPACT)                            -->
+  <!-- ======================================================================= -->
+  <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slatebase/85 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-500/20 shrink-0">
+          ₱
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
+              PesoFlow
+            </h1>
+            <!-- Live Connection Pill -->
+            <button id="header-db-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0" title="Configure Supabase Connection">
+              <span id="header-db-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span id="header-db-text">Local Mode</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
+            Daily Income & Expense Monitor (PHP)
+          </p>
+        </div>
+      </div>
+
+      <!-- Header Action Buttons -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <!-- Manage Categories Button -->
+        <button id="open-categories-btn" class="touch-target px-3 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Customize Income & Expense Categories">
+          <i data-lucide="tags" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Categories</span>
+        </button>
+
+        <!-- Supabase Setup Button -->
+        <button id="open-supabase-btn" class="touch-target px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Supabase SQL & Connection Setup">
+          <i data-lucide="database" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Supabase SQL</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="touch-target w-10 h-10 rounded-xl bg-slate-100 dark:bg-carddark hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center transition" aria-label="Toggle Color Theme">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================= -->
+  <!-- MAIN DASHBOARD CONTENT                                                  -->
+  <!-- ======================================================================= -->
+  <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
+
+    <!-- Quick Utility Strip -->
+    <div class="flex flex-wrap items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-2xl glass-card">
+      <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+        <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+        <span>Customize your categories anytime or sync live with <strong>Supabase</strong>.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="load-sample-btn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/25 border border-indigo-500/25 transition">
+          Load Sample Data
+        </button>
+        <button id="clear-all-btn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-300 hover:bg-rose-500/25 border border-rose-500/25 transition">
+          Reset All
+        </button>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 1: SUMMARY KPI CARDS (2x2 ON MOBILE, 4 COLS ON DESKTOP)       -->
+    <!-- ===================================================================== -->
+    <section id="section-overview" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <!-- Net Balance -->
+      <div class="glass-card rounded-2xl p-3.5 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Balance</span>
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
+            <i data-lucide="wallet" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div id="kpi-balance" class="font-mono text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 dark:text-white truncate">
+          ₱0.00
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+          Income minus Expenses
+        </p>
+      </div>
+
+      <!-- Total Income -->
+      <div class="glass-card rounded-2xl p-3.5 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Income</span>
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div id="kpi-income" class="font-mono text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 truncate">
+          ₱0.00
+        </div>
+        <p id="kpi-income-count" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+          0 entries
+        </p>
+      </div>
+
+      <!-- Total Expenses -->
+      <div class="glass-card rounded-2xl p-3.5 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Expenses</span>
+          <div class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+            <i data-lucide="trending-down" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div id="kpi-expense" class="font-mono text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight text-rose-600 dark:text-rose-400 truncate">
+          ₱0.00
+        </div>
+        <p id="kpi-expense-count" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+          0 entries
+        </p>
+      </div>
+
+      <!-- Today's Expenses -->
+      <div class="glass-card rounded-2xl p-3.5 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Today's Spend</span>
+          <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+            <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div id="kpi-today-expense" class="font-mono text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight text-amber-600 dark:text-amber-400 truncate">
+          ₱0.00
+        </div>
+        <p id="kpi-today-net" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+          Today's Net: ₱0.00
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 2: INTERACTIVE ANALYTICS CHARTS (PIE + BAR)                   -->
+    <!-- ===================================================================== -->
+    <section id="section-charts" class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      <!-- Category Breakdown Doughnut Chart (5 cols) -->
+      <div class="lg:col-span-5 glass-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 id="pie-chart-title" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              Expenses by Category
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              Percentage & peso share per category
+            </p>
+          </div>
+          <!-- Toggle Expense vs Income Breakdown -->
+          <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
+            <button type="button" id="pie-mode-expense" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition">
+              Expenses
+            </button>
+            <button type="button" id="pie-mode-income" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+              Income
+            </button>
+          </div>
+        </div>
+
+        <!-- Responsive Chart Canvas -->
+        <div class="relative w-full h-60 sm:h-64 flex items-center justify-center">
+          <canvas id="categoryPieChart"></canvas>
+          <div id="pie-empty-state" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+            <i data-lucide="pie-chart" class="w-10 h-10 text-slate-400/50 mb-2"></i>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">No transactions in this category view</p>
+          </div>
+        </div>
+
+        <!-- Mobile-Friendly Custom Legend Pills -->
+        <div id="pie-custom-legend" class="mt-4 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto"></div>
+
+        <!-- Top Category Footer -->
+        <div class="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+          <span class="text-slate-500 dark:text-slate-400 shrink-0">Top Category:</span>
+          <span id="top-category-label" class="font-bold font-mono text-slate-800 dark:text-slate-200 truncate">—</span>
+        </div>
+      </div>
+
+      <!-- Cash Flow Bar Chart (7 cols) -->
+      <div class="lg:col-span-7 glass-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              Income vs. Expense Cash Flow
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              Daily & monthly comparison (₱)
+            </p>
+          </div>
+          <!-- Range Selector: 7D, 14D, 30D, Monthly -->
+          <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
+            <button type="button" data-bar-range="7" class="bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
+              7D
+            </button>
+            <button type="button" data-bar-range="14" class="bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-white shadow transition">
+              14D
+            </button>
+            <button type="button" data-bar-range="30" class="bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
+              30D
+            </button>
+            <button type="button" data-bar-range="monthly" class="bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
+              Monthly
+            </button>
+          </div>
+        </div>
+
+        <!-- Bar Chart Canvas -->
+        <div class="relative w-full h-64 sm:h-72 flex items-center justify-center my-auto">
+          <canvas id="comparisonBarChart"></canvas>
+          <div id="bar-empty-state" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+            <i data-lucide="bar-chart-3" class="w-10 h-10 text-slate-400/50 mb-2"></i>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Log a transaction to visualize cash flow</p>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Income
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span> Expense
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 3: ADD TRANSACTION FORM & TRANSACTION HISTORY                 -->
+    <!-- ===================================================================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+
+      <!-- Left: Add / Edit Transaction Form (4 cols) -->
+      <div id="section-add-form" class="lg:col-span-4 glass-card rounded-2xl p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="form-heading" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-500"></i>
+            New Transaction
+          </h2>
+          <button type="button" id="cancel-edit-btn" class="hidden text-xs font-semibold text-amber-400 hover:underline">
+            Cancel Edit
+          </button>
+        </div>
+
+        <form id="transaction-form" class="space-y-4">
+          <input type="hidden" id="edit-id" value="" />
+
+          <!-- Transaction Type Toggle -->
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              Transaction Type
+            </label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <button type="button" id="type-btn-expense" class="touch-target py-2.5 px-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 border-rose-500 bg-rose-500/15 text-rose-600 dark:text-rose-400 transition">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                Expense
+              </button>
+              <button type="button" id="type-btn-income" class="touch-target py-2.5 px-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700 bg-slate-100/60 dark:bg-carddark text-slate-600 dark:text-slate-400 hover:border-emerald-500/50 transition">
+                <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+                Income
+              </button>
+            </div>
+            <input type="hidden" id="tx-type" value="expense" />
+          </div>
+
+          <!-- Amount Input (₱) -->
+          <div>
+            <label for="tx-amount" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              Amount (₱)
+            </label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold font-mono text-slate-400">₱</span>
+              <input
+                type="number"
+                id="tx-amount"
+                inputmode="decimal"
+                step="0.01"
+                min="0.01"
+                required
+                placeholder="0.00"
+                class="touch-target w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white font-mono font-bold text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              />
+            </div>
+          </div>
+
+          <!-- Custom Category Selector + Quick "+ Add Category" Button -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="tx-category" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Category
+              </label>
+              <button type="button" id="quick-add-cat-btn" class="text-xs font-semibold text-indigo-500 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                Add Category
+              </button>
+            </div>
+            <select
+              id="tx-category"
+              required
+              class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            >
+              <!-- Populated dynamically -->
             </select>
-        </div>
-        
-        <div class="form-group">
-            <label>Category Setup</label>
-            <div class="category-wrapper">
-                <select id="category" required></select>
-                <button type="button" class="btn-action" onclick="addNewCategory()">+ New</button>
-                <button type="button" class="btn-action" onclick="editCategory()">Edit</button>
-                <button type="button" class="btn-action" onclick="deleteCategoryAction()">Del</button>
-            </div>
+          </div>
+
+          <!-- Date Input -->
+          <div>
+            <label for="tx-date" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              Date
+            </label>
+            <input
+              type="date"
+              id="tx-date"
+              required
+              class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          <!-- Description / Notes -->
+          <div>
+            <label for="tx-desc" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+              Description / Notes
+            </label>
+            <input
+              type="text"
+              id="tx-desc"
+              required
+              maxlength="100"
+              placeholder="e.g., Lunch, Fuel, Client Payment..."
+              class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            id="submit-tx-btn"
+            class="touch-target w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2 transition cursor-pointer"
+          >
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span id="submit-btn-text">Save Expense</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Right: Transaction History (8 cols) -->
+      <div id="section-history" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              Transaction History
+            </h2>
+            <p id="history-count-label" class="text-xs text-slate-500 dark:text-slate-400">
+              Showing 0 transactions
+            </p>
+          </div>
+
+          <button id="export-csv-btn" class="touch-target px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/25 flex items-center gap-1.5 transition">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            Export CSV
+          </button>
         </div>
 
-        <div class="form-group">
-            <label>Amount</label>
-            <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" style="width: 120px;" required>
+        <!-- Responsive Filters Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+          <!-- Search Keyword -->
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input
+              type="text"
+              id="filter-search"
+              placeholder="Search notes or category..."
+              class="touch-target w-full pl-9 pr-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <!-- Type Filter -->
+          <select id="filter-type" class="touch-target w-full px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">All Types</option>
+            <option value="expense">Expenses Only</option>
+            <option value="income">Income Only</option>
+          </select>
+
+          <!-- Category Filter -->
+          <select id="filter-category" class="touch-target w-full px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">All Categories</option>
+          </select>
+
+          <!-- Month Filter + Reset -->
+          <div class="flex items-center gap-1.5">
+            <input
+              type="month"
+              id="filter-month"
+              aria-label="Filter by Month"
+              class="touch-target w-full px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button id="reset-filters-btn" title="Reset All Filters" class="touch-target w-11 h-11 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0 transition">
+              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
 
-        <div class="form-group" style="flex: 1;">
-            <label>Remarks</label>
-            <input type="text" id="remarks" placeholder="Optional details..." style="width: 100%;">
+        <!-- MOBILE CARD LIST VIEW (< md screens) -->
+        <div id="mobile-transaction-list" class="md:hidden space-y-2.5">
+          <!-- Mobile cards rendered dynamically -->
         </div>
-        
-        <div class="form-buttons">
-            <button type="submit" id="submitBtn" class="btn-submit">Save Record</button>
-            <button type="button" id="cancelEditBtn" class="btn-cancel-edit" style="display: none;" onclick="cancelEditTransaction()">Cancel</button>
-        </div>
-    </form>
 
-    <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: none;">
-        <span>History Log</span>
-        <input type="text" id="searchHistory" placeholder="Search categories, remarks..." onkeyup="renderApp()" style="max-width: 250px; padding: 8px 12px; font-weight: normal;">
+        <!-- DESKTOP TABLE VIEW (>= md screens) -->
+        <div class="hidden md:block overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100/90 dark:bg-slatebase text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Category</th>
+                <th class="py-3 px-4">Description</th>
+                <th class="py-3 px-4 text-right">Amount</th>
+                <th class="py-3 px-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="transaction-tbody" class="divide-y divide-slate-200/70 dark:divide-slate-800/70 text-sm">
+              <!-- Desktop table rows rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Shared Empty State -->
+        <div id="table-empty-state" class="hidden py-12 px-4 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
+          <div class="w-12 h-12 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70 text-slate-400 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="receipt" class="w-6 h-6"></i>
+          </div>
+          <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">No transactions found</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add a new income or expense entry, or clear active filters.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================= -->
+  <!-- STICKY MOBILE BOTTOM NAVIGATION BAR (< lg screens)                      -->
+  <!-- ======================================================================= -->
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slatebase/95 backdrop-blur-xl px-2 py-1.5">
+    <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
+      <button type="button" onclick="scrollToSection('section-overview')" class="touch-target flex flex-col items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-400 active:bg-slate-800/60 transition">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 mb-0.5"></i>
+        <span class="text-[10px] font-semibold">Overview</span>
+      </button>
+      <button type="button" onclick="scrollToSection('section-charts')" class="touch-target flex flex-col items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-400 active:bg-slate-800/60 transition">
+        <i data-lucide="pie-chart" class="w-4 h-4 mb-0.5"></i>
+        <span class="text-[10px] font-semibold">Charts</span>
+      </button>
+      <button type="button" onclick="scrollToSection('section-add-form')" class="touch-target flex flex-col items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/30 transition">
+        <i data-lucide="plus" class="w-4 h-4 mb-0.5"></i>
+        <span class="text-[10px] font-bold">Add Entry</span>
+      </button>
+      <button type="button" onclick="scrollToSection('section-history')" class="touch-target flex flex-col items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-400 active:bg-slate-800/60 transition">
+        <i data-lucide="list" class="w-4 h-4 mb-0.5"></i>
+        <span class="text-[10px] font-semibold">History</span>
+      </button>
     </div>
-    
-    <div class="table-wrapper glass-panel">
-        <table>
-            <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Remarks</th><th>Action</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+  </nav>
 
-    <div class="section-title">Data Management</div>
-    <div class="backup-section glass-panel">
-        <button class="btn-export" onclick="exportData()">Export JSON Backup</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-        <button class="btn-import" onclick="document.getElementById('importFile').click()">Import JSON Backup</button>
-    </div>
-</div>
+  <script>
+    /**
+     * PesoFlow — Mobile-First Daily Income & Expense Tracker
+     * Features:
+     * - Full English labels & mobile-optimized card + table views
+     * - Customizable Income & Expense categories (Add, Edit, Delete, Color Picker)
+     * - Live Supabase PostgreSQL integration + one-click SQL Schema copy
+     * - Interactive Chart.js Doughnut & Bar Charts
+     */
 
-<script>
-    // --- SUPABASE CONFIGURATION ---
-    const SUPABASE_URL = 'https://awpqyxdjeidrkmflwdjh.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_ZiGxQQIy7ZvZYHQVpvYlkg_3VX9Jwf-';
-
-    let supabaseClient = null;
-    try {
-        if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-    } catch (err) {
-        console.error('Supabase init error:', err);
-    }
-
-    function setCloudStatus(status, text) {
-        const badge = document.getElementById('cloudStatusBadge');
-        if (!badge) return;
-        badge.className = 'cloud-badge ' + (status || '');
-        badge.innerText = text;
-    }
-
-    const escapeHTML = (str) => {
-        if (str === null || str === undefined) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+    // =========================================================================
+    // 1. STATE & STORAGE KEYS
+    // =========================================================================
+    const KEYS = {
+      CATEGORIES: 'pesoflow_custom_categories_v2',
+      TRANSACTIONS: 'pesoflow_transactions_v2',
+      SB_URL: 'pesoflow_sb_url',
+      SB_ANON: 'pesoflow_sb_anon',
+      SB_REMEMBER: 'pesoflow_sb_remember',
+      THEME: 'pesoflow_theme'
     };
 
-    // --- THEME INITIALIZATION ---
-    const savedTheme = localStorage.getItem('mgTheme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeBtnText(savedTheme);
+    const STARTER_CATEGORIES = [
+      // Starter Income Categories (Fully editable/deletable by user)
+      { id: 'cat_inc_1', name: 'Salary', type: 'income', color: '#10b981' },
+      { id: 'cat_inc_2', name: 'Freelance', type: 'income', color: '#0ea5e9' },
+      { id: 'cat_inc_3', name: 'Business', type: 'income', color: '#14b8a6' },
+      { id: 'cat_inc_4', name: 'Other Income', type: 'income', color: '#8b5cf6' },
+      // Starter Expense Categories (Fully editable/deletable by user)
+      { id: 'cat_exp_1', name: 'Food & Dining', type: 'expense', color: '#f43f5e' },
+      { id: 'cat_exp_2', name: 'Fuel & Transport', type: 'expense', color: '#f97316' },
+      { id: 'cat_exp_3', name: 'Bills & Utilities', type: 'expense', color: '#eab308' },
+      { id: 'cat_exp_4', name: 'Groceries & Supplies', type: 'expense', color: '#22c55e' },
+      { id: 'cat_exp_5', name: 'Maintenance', type: 'expense', color: '#06b6d4' },
+      { id: 'cat_exp_6', name: 'Other Expense', type: 'expense', color: '#64748b' }
+    ];
 
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('mgTheme', newTheme);
-        updateThemeBtnText(newTheme);
-    }
-    
-    function updateThemeBtnText(theme) {
-        document.getElementById('themeBtn').innerText = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-    }
+    let categories = [];
+    let transactions = [];
+    let supabaseClient = null;
+    let isSupabaseConnected = false;
 
-    // Toggle Overall Dashboard visibility
-    function toggleOverallSummary() {
-        const dashboard = document.getElementById('overallDashboard');
-        const btn = document.getElementById('toggleOverallBtn');
-        if (dashboard.style.display === 'none') {
-            dashboard.style.display = 'flex';
-            btn.innerText = '👁️ Hide Overall Summary';
-        } else {
-            dashboard.style.display = 'none';
-            btn.innerText = '👁️ Show Overall Summary';
-        }
-    }
+    let pieChartMode = 'expense'; // 'expense' | 'income'
+    let barChartRange = '14';     // '7' | '14' | '30' | 'monthly'
+    let categoryModalTab = 'expense';
 
-    // --- DATA INITIALIZATION ---
-    let transactions = JSON.parse(localStorage.getItem('mgBudgetData')) || [];
-    let categories = JSON.parse(localStorage.getItem('mgCategoriesUser')) || { Income: [], Expense: [] };
-    let editingTransactionId = null;
+    let pieChartInstance = null;
+    let barChartInstance = null;
 
-    const monthFilterInput = document.getElementById('monthFilter');
-    const today = new Date();
-    const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-    if (!monthFilterInput.value) { monthFilterInput.value = currentMonth; }
-    document.getElementById('date').value = today.toISOString().split('T')[0];
-
-    const formatCurrency = (amount) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
-
-    function saveLocalCache() {
-        localStorage.setItem('mgBudgetData', JSON.stringify(transactions));
-        localStorage.setItem('mgCategoriesUser', JSON.stringify(categories));
+    // =========================================================================
+    // 2. UTILITY FUNCTIONS
+    // =========================================================================
+    function formatPHP(amount) {
+      const num = Number(amount) || 0;
+      return '₱' + num.toLocaleString('en-PH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
     }
 
-    // --- SUPABASE CLOUD SYNC ---
-    async function loadFromSupabase(isManualRefresh = false) {
-        if (!supabaseClient) {
-            setCloudStatus('offline', '⚠️ Local Backup Mode');
-            return;
-        }
+    function getTodayISO() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset();
+      const local = new Date(now.getTime() - offset * 60 * 1000);
+      return local.toISOString().split('T')[0];
+    }
 
-        setCloudStatus('', '🔄 Syncing with Supabase...');
+    function getOffsetDateISO(daysAgo) {
+      const d = new Date();
+      d.setDate(d.getDate() - daysAgo);
+      const offset = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - offset * 60 * 1000);
+      return local.toISOString().split('T')[0];
+    }
+
+    function formatDisplayDate(isoDate) {
+      if (!isoDate) return '';
+      const [y, m, d] = isoDate.split('-');
+      const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
+      return dateObj.toLocaleDateString('en-PH', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    window.scrollToSection = function (sectionId) {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-emerald-600 text-white border-emerald-400/40',
+        error: 'bg-rose-600 text-white border-rose-400/40',
+        info: 'bg-slate-800 text-white border-slate-600/60'
+      };
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl border text-xs sm:text-sm font-medium transform transition-all duration-300 -translate-y-2 opacity-0 ${styles[type] || styles.info}`;
+      toast.innerHTML = `<span>${escapeHTML(message)}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('-translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function customConfirm(title, message, okText = 'Confirm') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-modal');
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-message').textContent = message;
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const cancelBtn = document.getElementById('confirm-cancel-btn');
+        okBtn.textContent = okText;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        const cleanup = (res) => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          okBtn.removeEventListener('click', onOk);
+          cancelBtn.removeEventListener('click', onCancel);
+          resolve(res);
+        };
+
+        const onOk = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+      });
+    }
+
+    function getCategoryColor(categoryName) {
+      const found = categories.find((c) => c.name.toLowerCase() === String(categoryName).toLowerCase());
+      return found ? found.color : '#6366f1';
+    }
+
+    // =========================================================================
+    // 3. LOCAL STORAGE & SAMPLE DATA
+    // =========================================================================
+    function saveLocalState() {
+      sessionStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
+      sessionStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(transactions));
+      localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
+      localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(transactions));
+    }
+
+    function generateSampleTransactions() {
+      const incCats = categories.filter((c) => c.type === 'income');
+      const expCats = categories.filter((c) => c.type === 'expense');
+      const inc1 = incCats[0]?.name || 'Salary';
+      const inc2 = incCats[1]?.name || inc1;
+      const exp1 = expCats[0]?.name || 'Food & Dining';
+      const exp2 = expCats[1]?.name || exp1;
+      const exp3 = expCats[2]?.name || exp1;
+
+      return [
+        { id: crypto.randomUUID(), type: 'income', amount: 22000.00, category: inc1, date: getOffsetDateISO(6), description: '15th Payroll Deposit' },
+        { id: crypto.randomUUID(), type: 'expense', amount: 2450.00, category: exp1, date: getOffsetDateISO(5), description: 'Weekly groceries & fresh produce' },
+        { id: crypto.randomUUID(), type: 'expense', amount: 1850.00, category: exp3, date: getOffsetDateISO(4), description: 'Electricity & Fiber Internet bill' },
+        { id: crypto.randomUUID(), type: 'income', amount: 6500.00, category: inc2, date: getOffsetDateISO(3), description: 'Client project milestone' },
+        { id: crypto.randomUUID(), type: 'expense', amount: 650.00, category: exp2, date: getOffsetDateISO(2), description: 'Full tank gasoline' },
+        { id: crypto.randomUUID(), type: 'expense', amount: 420.00, category: exp1, date: getOffsetDateISO(1), description: 'Dinner with family' },
+        { id: crypto.randomUUID(), type: 'expense', amount: 240.00, category: exp1, date: getTodayISO(), description: 'Lunch & iced coffee' }
+      ];
+    }
+
+    function loadLocalState() {
+      const rawCats = sessionStorage.getItem(KEYS.CATEGORIES) || localStorage.getItem(KEYS.CATEGORIES);
+      if (rawCats) {
         try {
-            const [txRes, catRes] = await Promise.all([
-                supabaseClient.from('finance_transactions').select('*').order('date', { ascending: false }),
-                supabaseClient.from('finance_categories').select('*')
-            ]);
+          const parsed = JSON.parse(rawCats);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            categories = parsed;
+          }
+        } catch (e) {}
+      }
+      if (categories.length === 0) {
+        categories = [...STARTER_CATEGORIES];
+      }
 
-            if (txRes.error) throw txRes.error;
-            if (catRes.error) throw catRes.error;
+      const rawTx = sessionStorage.getItem(KEYS.TRANSACTIONS) || localStorage.getItem(KEYS.TRANSACTIONS);
+      if (rawTx) {
+        try {
+          const parsed = JSON.parse(rawTx);
+          if (Array.isArray(parsed)) {
+            transactions = parsed;
+            return;
+          }
+        } catch (e) {}
+      }
 
-            const cloudTransactions = (txRes.data || []).map(row => ({
-                id: Number(row.id),
-                date: row.date,
-                type: row.type,
-                category: row.category,
-                amount: parseFloat(row.amount) || 0,
-                remarks: row.remarks || ''
-            }));
-
-            const cloudCatRows = catRes.data || [];
-
-            // First-time auto-migration: if Supabase is empty but browser has existing local records, upload them
-            if (
-                cloudTransactions.length === 0 &&
-                cloudCatRows.length === 0 &&
-                (transactions.length > 0 || categories.Income.length > 0 || categories.Expense.length > 0)
-            ) {
-                await syncAllLocalToSupabase();
-            } else {
-                transactions = cloudTransactions;
-                const rebuiltCategories = { Income: [], Expense: [] };
-
-                cloudCatRows.forEach(c => {
-                    if (c.type === 'Income' || c.type === 'Expense') {
-                        if (!rebuiltCategories[c.type].includes(c.name)) {
-                            rebuiltCategories[c.type].push(c.name);
-                        }
-                    }
-                });
-
-                // Ensure any category used by a transaction is also listed in dropdowns
-                transactions.forEach(t => {
-                    if ((t.type === 'Income' || t.type === 'Expense') && t.category) {
-                        if (!rebuiltCategories[t.type].includes(t.category)) {
-                            rebuiltCategories[t.type].push(t.category);
-                        }
-                    }
-                });
-
-                rebuiltCategories.Income.sort();
-                rebuiltCategories.Expense.sort();
-                categories = rebuiltCategories;
-                saveLocalCache();
-            }
-
-            setCloudStatus('online', '☁️ Supabase Cloud Active');
-            updateCategoryDropdown();
-            renderApp();
-            if (isManualRefresh) {
-                alert('Synced with Supabase Cloud!');
-            }
-        } catch (err) {
-            console.error('Supabase load error:', err);
-            setCloudStatus('offline', '⚠️ Offline / Check SQL Setup');
-        }
+      transactions = generateSampleTransactions();
+      saveLocalState();
     }
 
-    async function syncAllLocalToSupabase() {
-        if (!supabaseClient) return;
+    // =========================================================================
+    // 4. SUPABASE INTEGRATION LAYER
+    // =========================================================================
+    function updateSupabaseBadgeUI(connected, url = '') {
+      isSupabaseConnected = connected;
+      const headerBadge = document.getElementById('header-db-badge');
+      const headerDot = document.getElementById('header-db-dot');
+      const headerText = document.getElementById('header-db-text');
+      const modalStatus = document.getElementById('sb-modal-status');
+      const modalStatusText = document.getElementById('sb-modal-status-text');
+      const disconnectBtn = document.getElementById('sb-disconnect-btn');
 
-        const catPayload = [];
-        ['Income', 'Expense'].forEach(type => {
-            (categories[type] || []).forEach(name => {
-                catPayload.push({ id: `${type}::${name}`, type, name });
-            });
-        });
+      if (connected) {
+        headerBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:opacity-90 transition shrink-0';
+        headerDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+        headerText.textContent = 'Supabase Live';
 
-        if (catPayload.length > 0) {
-            const { error: catErr } = await supabaseClient.from('finance_categories').upsert(catPayload);
-            if (catErr) throw catErr;
-        }
+        modalStatus.className = 'p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3';
+        modalStatusText.className = 'text-xs sm:text-sm text-emerald-600 dark:text-emerald-300 font-medium';
+        modalStatusText.textContent = `Connected to Supabase (${url.replace('https://', '').slice(0, 26)}...)`;
+        disconnectBtn.classList.remove('hidden');
+      } else {
+        headerBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0';
+        headerDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+        headerText.textContent = 'Local Mode';
 
-        if (transactions.length > 0) {
-            const txPayload = transactions.map(t => ({
-                id: Number(t.id),
-                date: t.date,
-                type: t.type,
-                category: t.category,
-                amount: parseFloat(t.amount) || 0,
-                remarks: t.remarks || ''
-            }));
-            const { error: txErr } = await supabaseClient.from('finance_transactions').upsert(txPayload);
-            if (txErr) throw txErr;
-        }
+        modalStatus.className = 'p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3';
+        modalStatusText.className = 'text-xs sm:text-sm text-amber-700 dark:text-amber-300';
+        modalStatusText.textContent = 'Currently running in Local Mode. Connect Supabase to sync across devices.';
+        disconnectBtn.classList.add('hidden');
+      }
     }
 
-    // --- CATEGORY MANAGEMENT ---
-    function updateCategoryDropdown() {
-        const type = document.getElementById('type').value;
-        const categorySelect = document.getElementById('category');
-        const currentSelected = categorySelect.value;
-        categorySelect.innerHTML = '';
-        
-        if (!categories[type] || categories[type].length === 0) {
-            categorySelect.innerHTML = '<option value="" disabled selected>No Categories</option>';
+    async function connectAndSyncSupabase(url, anonKey, silent = false) {
+      try {
+        if (!window.supabase || !window.supabase.createClient) {
+          throw new Error('Supabase SDK not loaded.');
+        }
+
+        const client = window.supabase.createClient(url, anonKey);
+
+        // Fetch categories & transactions to verify connection and table existence
+        const [catRes, txRes] = await Promise.all([
+          client.from('categories').select('*').order('created_at', { ascending: true }),
+          client.from('transactions').select('*').order('date', { ascending: false })
+        ]);
+
+        if (catRes.error) throw catRes.error;
+        if (txRes.error) throw txRes.error;
+
+        supabaseClient = client;
+        updateSupabaseBadgeUI(true, url);
+
+        // If Supabase categories table is empty, seed user's current categories
+        if (catRes.data.length === 0 && categories.length > 0) {
+          const seedPayload = categories.map((c) => ({
+            name: c.name,
+            type: c.type,
+            color: c.color
+          }));
+          const { data: insertedCats, error: seedErr } = await supabaseClient
+            .from('categories')
+            .insert(seedPayload)
+            .select();
+          if (!seedErr && insertedCats) {
+            categories = insertedCats;
+          }
+        } else if (catRes.data.length > 0) {
+          categories = catRes.data;
+        }
+
+        transactions = (txRes.data || []).map((row) => ({
+          ...row,
+          amount: Number(row.amount)
+        }));
+
+        saveLocalState();
+        refreshAllUI();
+
+        if (!silent) {
+          showToast('Connected to Supabase PostgreSQL!', 'success');
+        }
+        return true;
+      } catch (err) {
+        console.error('Supabase connection error:', err);
+        supabaseClient = null;
+        updateSupabaseBadgeUI(false);
+        if (!silent) {
+          showToast('Supabase Error: ' + (err.message || 'Check URL, Key, or SQL Schema.'), 'error');
+        }
+        return false;
+      }
+    }
+
+    async function tryAutoConnectSupabase() {
+      const url = sessionStorage.getItem(KEYS.SB_URL) || localStorage.getItem(KEYS.SB_URL);
+      const anon = sessionStorage.getItem(KEYS.SB_ANON) || localStorage.getItem(KEYS.SB_ANON);
+      const remember = localStorage.getItem(KEYS.SB_REMEMBER) === 'true';
+
+      if (url) document.getElementById('sb-url').value = url;
+      if (anon) document.getElementById('sb-anon-key').value = anon;
+      document.getElementById('sb-remember-local').checked = remember;
+
+      if (url && anon) {
+        await connectAndSyncSupabase(url, anon, true);
+      }
+    }
+
+    // =========================================================================
+    // 5. CUSTOM CATEGORIES MANAGEMENT (ADD, EDIT, DELETE)
+    // =========================================================================
+    function renderCategoryDropdowns() {
+      const currentType = document.getElementById('tx-type').value || 'expense';
+      const txSelect = document.getElementById('tx-category');
+      const prevSelected = txSelect.value;
+
+      const filteredCats = categories.filter((c) => c.type === currentType);
+      if (filteredCats.length === 0) {
+        txSelect.innerHTML = `<option value="">No categories — click "+ Add Category"</option>`;
+      } else {
+        txSelect.innerHTML = filteredCats
+          .map((c) => `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`)
+          .join('');
+        if (filteredCats.some((c) => c.name === prevSelected)) {
+          txSelect.value = prevSelected;
+        }
+      }
+
+      // Populate Filter Dropdown
+      const filterCatSelect = document.getElementById('filter-category');
+      const prevFilter = filterCatSelect.value;
+      const expList = categories.filter((c) => c.type === 'expense');
+      const incList = categories.filter((c) => c.type === 'income');
+
+      filterCatSelect.innerHTML = `
+        <option value="all">All Categories</option>
+        <optgroup label="Expense Categories">
+          ${expList.map((c) => `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`).join('')}
+        </optgroup>
+        <optgroup label="Income Categories">
+          ${incList.map((c) => `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`).join('')}
+        </optgroup>
+      `;
+      filterCatSelect.value = prevFilter || 'all';
+    }
+
+    function renderCustomCategoriesModalList() {
+      const listContainer = document.getElementById('custom-categories-list');
+      const countEl = document.getElementById('cat-list-count');
+      const items = categories.filter((c) => c.type === categoryModalTab);
+
+      countEl.textContent = `${items.length} ${items.length === 1 ? 'category' : 'categories'}`;
+
+      if (items.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-8 text-center text-xs text-slate-500 dark:text-slate-400 border border-dashed border-slate-700 rounded-xl">
+            No ${categoryModalTab} categories yet. Add one above!
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = items
+        .map(
+          (cat) => `
+          <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-100/80 dark:bg-slatebase border border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-4 h-4 rounded-full shrink-0 border border-white/20" style="background-color: ${escapeHTML(cat.color)};"></span>
+              <span class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">${escapeHTML(cat.name)}</span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" onclick="startEditCategory('${cat.id}')" class="touch-target w-9 h-9 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 flex items-center justify-center transition" title="Edit Category">
+                <i data-lucide="pencil" class="w-4 h-4"></i>
+              </button>
+              <button type="button" onclick="deleteCustomCategory('${cat.id}')" class="touch-target w-9 h-9 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition" title="Delete Category">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+
+      lucide.createIcons();
+    }
+
+    function switchCategoryModalTab(tab) {
+      categoryModalTab = tab;
+      document.getElementById('cat-type').value = tab;
+
+      const expTab = document.getElementById('cat-tab-expense');
+      const incTab = document.getElementById('cat-tab-income');
+
+      if (tab === 'expense') {
+        expTab.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition';
+        incTab.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition';
+      } else {
+        incTab.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-white shadow transition';
+        expTab.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition';
+      }
+
+      renderCustomCategoriesModalList();
+    }
+
+    function resetCategoryForm() {
+      document.getElementById('cat-edit-id').value = '';
+      document.getElementById('cat-name').value = '';
+      document.getElementById('cat-color').value = categoryModalTab === 'income' ? '#10b981' : '#f43f5e';
+      document.getElementById('cat-form-title').textContent = 'Add New Category';
+      document.getElementById('cat-submit-label').textContent = 'Save Category';
+      document.getElementById('cat-cancel-edit').classList.add('hidden');
+    }
+
+    window.startEditCategory = function (id) {
+      const cat = categories.find((c) => c.id === id);
+      if (!cat) return;
+      document.getElementById('cat-edit-id').value = cat.id;
+      document.getElementById('cat-type').value = cat.type;
+      document.getElementById('cat-name').value = cat.name;
+      document.getElementById('cat-color').value = cat.color;
+      document.getElementById('cat-form-title').textContent = 'Edit Category';
+      document.getElementById('cat-submit-label').textContent = 'Update Category';
+      document.getElementById('cat-cancel-edit').classList.remove('hidden');
+    };
+
+    window.deleteCustomCategory = async function (id) {
+      const cat = categories.find((c) => c.id === id);
+      if (!cat) return;
+
+      const confirmed = await customConfirm(
+        'Delete Category?',
+        `Remove "${cat.name}" from your ${cat.type} categories? Existing transactions will keep their label.`,
+        'Delete Category'
+      );
+      if (!confirmed) return;
+
+      if (isSupabaseConnected && supabaseClient) {
+        const { error } = await supabaseClient.from('categories').delete().eq('id', id);
+        if (error) {
+          showToast('Supabase delete failed: ' + error.message, 'error');
+          return;
+        }
+      }
+
+      categories = categories.filter((c) => c.id !== id);
+      saveLocalState();
+      renderCustomCategoriesModalList();
+      renderCategoryDropdowns();
+      refreshDashboard();
+      showToast(`Deleted "${cat.name}".`, 'info');
+    };
+
+    // =========================================================================
+    // 6. TRANSACTION FORM & KPI CALCULATIONS
+    // =========================================================================
+    function setTransactionTypeUI(type) {
+      document.getElementById('tx-type').value = type;
+      const expBtn = document.getElementById('type-btn-expense');
+      const incBtn = document.getElementById('type-btn-income');
+      const submitBtn = document.getElementById('submit-tx-btn');
+      const submitText = document.getElementById('submit-btn-text');
+      const isEditing = Boolean(document.getElementById('edit-id').value);
+
+      if (type === 'expense') {
+        expBtn.className = 'touch-target py-2.5 px-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 border-rose-500 bg-rose-500/15 text-rose-600 dark:text-rose-400 transition';
+        incBtn.className = 'touch-target py-2.5 px-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700 bg-slate-100/60 dark:bg-carddark text-slate-600 dark:text-slate-400 hover:border-emerald-500/50 transition';
+        submitBtn.className = 'touch-target w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2 transition cursor-pointer';
+        submitText.textContent = isEditing ? 'Update Expense' : 'Save Expense';
+      } else {
+        incBtn.className = 'touch-target py-2.5 px-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border-2 border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 transition';
+        expBtn.className = 'touch-target py-2.5 px-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700 bg-slate-100/60 dark:bg-carddark text-slate-600 dark:text-slate-400 hover:border-rose-500/50 transition';
+        submitBtn.className = 'touch-target w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition cursor-pointer';
+        submitText.textContent = isEditing ? 'Update Income' : 'Save Income';
+      }
+
+      renderCategoryDropdowns();
+    }
+
+    function resetEntryForm() {
+      document.getElementById('edit-id').value = '';
+      document.getElementById('tx-amount').value = '';
+      document.getElementById('tx-desc').value = '';
+      document.getElementById('tx-date').value = getTodayISO();
+      document.getElementById('form-heading').innerHTML = `
+        <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-500"></i>
+        New Transaction
+      `;
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+      setTransactionTypeUI(document.getElementById('tx-type').value || 'expense');
+      lucide.createIcons();
+    }
+
+    function getFilteredTransactions() {
+      const search = document.getElementById('filter-search').value.trim().toLowerCase();
+      const typeFilter = document.getElementById('filter-type').value;
+      const categoryFilter = document.getElementById('filter-category').value;
+      const monthFilter = document.getElementById('filter-month').value;
+
+      return transactions
+        .filter((tx) => {
+          if (typeFilter !== 'all' && tx.type !== typeFilter) return false;
+          if (categoryFilter !== 'all' && tx.category !== categoryFilter) return false;
+          if (monthFilter && !tx.date.startsWith(monthFilter)) return false;
+          if (search) {
+            const hay = `${tx.description} ${tx.category}`.toLowerCase();
+            if (!hay.includes(search)) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function updateKPIs(filteredList) {
+      let totalIncome = 0;
+      let totalExpense = 0;
+      let incomeCount = 0;
+      let expenseCount = 0;
+
+      filteredList.forEach((tx) => {
+        if (tx.type === 'income') {
+          totalIncome += Number(tx.amount);
+          incomeCount++;
         } else {
-            categories[type].forEach(cat => {
-                categorySelect.innerHTML += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
-            });
-            if (categories[type].includes(currentSelected)) {
-                categorySelect.value = currentSelected;
-            }
+          totalExpense += Number(tx.amount);
+          expenseCount++;
         }
+      });
+
+      const netBalance = totalIncome - totalExpense;
+      const todayISO = getTodayISO();
+      let todayIncome = 0;
+      let todayExpense = 0;
+
+      transactions.forEach((tx) => {
+        if (tx.date === todayISO) {
+          if (tx.type === 'income') todayIncome += Number(tx.amount);
+          else todayExpense += Number(tx.amount);
+        }
+      });
+
+      const todayNet = todayIncome - todayExpense;
+
+      const balanceEl = document.getElementById('kpi-balance');
+      balanceEl.textContent = (netBalance < 0 ? '-' : '') + formatPHP(Math.abs(netBalance));
+      balanceEl.className = `font-mono text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight truncate ${
+        netBalance >= 0 ? 'text-slate-900 dark:text-white' : 'text-rose-500'
+      }`;
+
+      document.getElementById('kpi-income').textContent = formatPHP(totalIncome);
+      document.getElementById('kpi-income-count').textContent = `${incomeCount} ${incomeCount === 1 ? 'entry' : 'entries'}`;
+
+      document.getElementById('kpi-expense').textContent = formatPHP(totalExpense);
+      document.getElementById('kpi-expense-count').textContent = `${expenseCount} ${expenseCount === 1 ? 'entry' : 'entries'}`;
+
+      document.getElementById('kpi-today-expense').textContent = formatPHP(todayExpense);
+      document.getElementById('kpi-today-net').textContent = `Today's Net: ${todayNet >= 0 ? '+' : '-'}${formatPHP(Math.abs(todayNet))}`;
     }
 
-    async function addNewCategory() {
-        const type = document.getElementById('type').value;
-        const newCat = prompt(`Enter new category for ${type}:`);
-        if (newCat && newCat.trim() !== '') {
-            const formattedCat = newCat.trim();
-            if (!categories[type].includes(formattedCat)) {
-                categories[type].push(formattedCat);
-                categories[type].sort();
-                saveLocalCache();
-                updateCategoryDropdown();
+    // =========================================================================
+    // 7. CHARTS (CHART.JS DOUGHNUT & BAR)
+    // =========================================================================
+    function getChartTextColor() {
+      return document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#334155';
+    }
 
-                if (supabaseClient) {
-                    try {
-                        setCloudStatus('', '🔄 Saving category...');
-                        const { error } = await supabaseClient
-                            .from('finance_categories')
-                            .upsert({ id: `${type}::${formattedCat}`, type, name: formattedCat });
-                        if (error) throw error;
-                        setCloudStatus('online', '☁️ Supabase Cloud Active');
-                    } catch (err) {
-                        console.error('Supabase category insert error:', err);
-                        setCloudStatus('offline', '⚠️ Sync Error (Saved Locally)');
-                    }
+    function getChartGridColor() {
+      return document.documentElement.classList.contains('dark')
+        ? 'rgba(148, 163, 184, 0.12)'
+        : 'rgba(148, 163, 184, 0.25)';
+    }
+
+    function renderPieChart(filteredList) {
+      const ctx = document.getElementById('categoryPieChart').getContext('2d');
+      const emptyEl = document.getElementById('pie-empty-state');
+      const legendEl = document.getElementById('pie-custom-legend');
+      const topCatLabel = document.getElementById('top-category-label');
+
+      const subset = filteredList.filter((tx) => tx.type === pieChartMode);
+
+      if (subset.length === 0) {
+        if (pieChartInstance) {
+          pieChartInstance.destroy();
+          pieChartInstance = null;
+        }
+        emptyEl.classList.remove('hidden');
+        legendEl.innerHTML = '';
+        topCatLabel.textContent = '—';
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+
+      const totalsByCategory = {};
+      let grandTotal = 0;
+      subset.forEach((tx) => {
+        const amt = Number(tx.amount);
+        totalsByCategory[tx.category] = (totalsByCategory[tx.category] || 0) + amt;
+        grandTotal += amt;
+      });
+
+      const sortedEntries = Object.entries(totalsByCategory).sort((a, b) => b[1] - a[1]);
+      const labels = sortedEntries.map(([cat]) => cat);
+      const dataValues = sortedEntries.map(([, val]) => val);
+      const bgColors = labels.map((cat) => getCategoryColor(cat));
+
+      const [topCat, topVal] = sortedEntries[0];
+      const topPct = grandTotal > 0 ? ((topVal / grandTotal) * 100).toFixed(1) : 0;
+      topCatLabel.textContent = `${topCat} (${topPct}%)`;
+
+      // Render mobile-friendly legend pills
+      legendEl.innerHTML = sortedEntries
+        .map(([cat, val]) => {
+          const color = getCategoryColor(cat);
+          const pct = grandTotal > 0 ? ((val / grandTotal) * 100).toFixed(0) : 0;
+          return `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slatebase border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+              <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${color};"></span>
+              <span class="truncate max-w-[110px]">${escapeHTML(cat)}</span>
+              <span class="font-mono font-bold text-slate-500 dark:text-slate-400">${pct}%</span>
+            </span>
+          `;
+        })
+        .join('');
+
+      if (pieChartInstance) {
+        pieChartInstance.destroy();
+      }
+
+      pieChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [
+            {
+              data: dataValues,
+              backgroundColor: bgColors,
+              borderColor: document.documentElement.classList.contains('dark') ? '#0b1120' : '#ffffff',
+              borderWidth: 2,
+              hoverOffset: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '64%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleFont: { family: 'Inter', size: 12, weight: '700' },
+              bodyFont: { family: 'JetBrains Mono', size: 12 },
+              padding: 10,
+              cornerRadius: 10,
+              callbacks: {
+                label: (context) => {
+                  const val = context.parsed || 0;
+                  const pct = grandTotal > 0 ? ((val / grandTotal) * 100).toFixed(1) : 0;
+                  return ` ${formatPHP(val)} (${pct}%)`;
                 }
+              }
             }
-            document.getElementById('category').value = formattedCat;
+          }
         }
+      });
     }
 
-    async function editCategory() {
-        const type = document.getElementById('type').value;
-        const currentCat = document.getElementById('category').value;
-        if (!currentCat) return alert("Select a category to edit.");
+    function renderBarChart(filteredList) {
+      const ctx = document.getElementById('comparisonBarChart').getContext('2d');
+      const emptyEl = document.getElementById('bar-empty-state');
 
-        const updatedCat = prompt(`Edit name for "${currentCat}":`, currentCat);
-        if (updatedCat && updatedCat.trim() !== '' && updatedCat !== currentCat) {
-            const newName = updatedCat.trim();
-            const index = categories[type].indexOf(currentCat);
-            if (index !== -1) {
-                categories[type][index] = newName;
-                categories[type] = [...new Set(categories[type])].sort();
+      if (filteredList.length === 0) {
+        if (barChartInstance) {
+          barChartInstance.destroy();
+          barChartInstance = null;
+        }
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+
+      const grouped = {};
+      filteredList.forEach((tx) => {
+        const key = barChartRange === 'monthly' ? tx.date.slice(0, 7) : tx.date;
+        if (!grouped[key]) {
+          grouped[key] = { income: 0, expense: 0 };
+        }
+        if (tx.type === 'income') grouped[key].income += Number(tx.amount);
+        else grouped[key].expense += Number(tx.amount);
+      });
+
+      const sortedKeys = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+      const limit = barChartRange === 'monthly' ? 12 : Number(barChartRange);
+      const displayKeys = sortedKeys.slice(-limit);
+
+      const labels = displayKeys.map((k) => {
+        if (barChartRange !== 'monthly') {
+          const [, m, d] = k.split('-');
+          const dt = new Date(2026, Number(m) - 1, Number(d));
+          return dt.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+        } else {
+          const [y, m] = k.split('-');
+          const dt = new Date(Number(y), Number(m) - 1, 1);
+          return dt.toLocaleDateString('en-PH', { month: 'short', year: '2-digit' });
+        }
+      });
+
+      const incomeSeries = displayKeys.map((k) => grouped[k].income);
+      const expenseSeries = displayKeys.map((k) => grouped[k].expense);
+
+      if (barChartInstance) {
+        barChartInstance.destroy();
+      }
+
+      barChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Income',
+              data: incomeSeries,
+              backgroundColor: '#10b981',
+              borderRadius: 5,
+              maxBarThickness: 24
+            },
+            {
+              label: 'Expense',
+              data: expenseSeries,
+              backgroundColor: '#f43f5e',
+              borderRadius: 5,
+              maxBarThickness: 24
             }
-            transactions = transactions.map(t => {
-                if (t.type === type && t.category === currentCat) return { ...t, category: newName };
-                return t;
-            });
-            saveLocalCache();
-            updateCategoryDropdown();
-            document.getElementById('category').value = newName;
-            renderApp();
-
-            if (supabaseClient) {
-                try {
-                    setCloudStatus('', '🔄 Updating category...');
-                    await supabaseClient
-                        .from('finance_categories')
-                        .upsert({ id: `${type}::${newName}`, type, name: newName });
-                    await supabaseClient
-                        .from('finance_categories')
-                        .delete()
-                        .eq('id', `${type}::${currentCat}`);
-                    await supabaseClient
-                        .from('finance_transactions')
-                        .update({ category: newName })
-                        .eq('type', type)
-                        .eq('category', currentCat);
-                    setCloudStatus('online', '☁️ Supabase Cloud Active');
-                } catch (err) {
-                    console.error('Supabase category rename error:', err);
-                    setCloudStatus('offline', '⚠️ Sync Error (Saved Locally)');
-                }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleFont: { family: 'Inter', size: 12, weight: '700' },
+              bodyFont: { family: 'JetBrains Mono', size: 12 },
+              padding: 10,
+              cornerRadius: 10,
+              callbacks: {
+                label: (context) => ` ${context.dataset.label}: ${formatPHP(context.parsed.y)}`
+              }
             }
-        }
-    }
-
-    async function deleteCategoryAction() {
-        const type = document.getElementById('type').value;
-        const currentCat = document.getElementById('category').value;
-        if (!currentCat) return alert("Select a category to delete.");
-
-        if (confirm(`Delete the category "${currentCat}"?\n\nExisting records using this category will remain, but it will be removed from the dropdown options.`)) {
-            categories[type] = categories[type].filter(c => c !== currentCat);
-            saveLocalCache();
-            updateCategoryDropdown();
-
-            if (supabaseClient) {
-                try {
-                    setCloudStatus('', '🔄 Removing category...');
-                    const { error } = await supabaseClient
-                        .from('finance_categories')
-                        .delete()
-                        .eq('id', `${type}::${currentCat}`);
-                    if (error) throw error;
-                    setCloudStatus('online', '☁️ Supabase Cloud Active');
-                } catch (err) {
-                    console.error('Supabase category delete error:', err);
-                    setCloudStatus('offline', '⚠️ Sync Error (Saved Locally)');
-                }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: getChartTextColor(),
+                font: { family: 'Inter', size: 10 }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: getChartGridColor() },
+              ticks: {
+                color: getChartTextColor(),
+                font: { family: 'JetBrains Mono', size: 10 },
+                callback: (value) => '₱' + Number(value).toLocaleString('en-PH')
+              }
             }
+          }
         }
+      });
     }
 
-    // --- ADD & EDIT TRANSACTIONS ---
-    function startEditTransaction(id) {
-        const record = transactions.find(t => Number(t.id) === Number(id));
-        if (!record) return;
+    // =========================================================================
+    // 8. RENDER TRANSACTION HISTORY (MOBILE CARDS + DESKTOP TABLE)
+    // =========================================================================
+    function renderTransactionHistory(filteredList) {
+      const mobileListEl = document.getElementById('mobile-transaction-list');
+      const tbodyEl = document.getElementById('transaction-tbody');
+      const emptyEl = document.getElementById('table-empty-state');
+      const countLabel = document.getElementById('history-count-label');
 
-        editingTransactionId = Number(record.id);
-        document.getElementById('date').value = record.date;
-        document.getElementById('type').value = record.type;
+      countLabel.textContent = `Showing ${filteredList.length} ${filteredList.length === 1 ? 'transaction' : 'transactions'}`;
 
-        if (!categories[record.type].includes(record.category)) {
-            categories[record.type].push(record.category);
-            categories[record.type].sort();
+      if (filteredList.length === 0) {
+        mobileListEl.innerHTML = '';
+        tbodyEl.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+
+      // 1. Mobile Card View (< md)
+      mobileListEl.innerHTML = filteredList
+        .map((tx) => {
+          const isIncome = tx.type === 'income';
+          const color = getCategoryColor(tx.category);
+          const amountFormatted = `${isIncome ? '+' : '-'}${formatPHP(tx.amount)}`;
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-slatebase border border-slate-200 dark:border-slate-800/90 flex items-center justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold truncate max-w-[140px]" style="background-color: ${color}20; color: ${color}; border: 1px solid ${color}40;">
+                    <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color: ${color};"></span>
+                    ${escapeHTML(tx.category)}
+                  </span>
+                  <span class="text-[11px] text-slate-500 dark:text-slate-400 shrink-0">${formatDisplayDate(tx.date)}</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">${escapeHTML(tx.description)}</p>
+              </div>
+
+              <div class="flex flex-col items-end gap-1.5 shrink-0">
+                <span class="font-mono font-bold text-sm ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+                  ${amountFormatted}
+                </span>
+                <div class="flex items-center gap-1">
+                  <button onclick="editTransaction('${tx.id}')" class="w-8 h-8 rounded-lg bg-slate-200/80 dark:bg-carddark text-slate-500 hover:text-indigo-400 flex items-center justify-center transition" aria-label="Edit">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="deleteTransaction('${tx.id}')" class="w-8 h-8 rounded-lg bg-slate-200/80 dark:bg-carddark text-slate-500 hover:text-rose-400 flex items-center justify-center transition" aria-label="Delete">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      // 2. Desktop Table View (>= md)
+      tbodyEl.innerHTML = filteredList
+        .map((tx) => {
+          const isIncome = tx.type === 'income';
+          const color = getCategoryColor(tx.category);
+          const amountFormatted = `${isIncome ? '+' : '-'}${formatPHP(tx.amount)}`;
+
+          return `
+            <tr class="hover:bg-slate-100/70 dark:hover:bg-carddark/80 transition">
+              <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-600 dark:text-slate-300">
+                ${formatDisplayDate(tx.date)}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold" style="background-color: ${color}20; color: ${color}; border: 1px solid ${color}40;">
+                  <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${color};"></span>
+                  ${escapeHTML(tx.category)}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-sm font-medium text-slate-800 dark:text-slate-200 max-w-[240px] truncate" title="${escapeHTML(tx.description)}">
+                ${escapeHTML(tx.description)}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap text-right font-mono font-bold text-sm ${
+                isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+              }">
+                ${amountFormatted}
+              </td>
+              <td class="py-3 px-4 whitespace-nowrap text-center">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="editTransaction('${tx.id}')" class="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition" title="Edit">
+                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                  </button>
+                  <button onclick="deleteTransaction('${tx.id}')" class="p-2 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Delete">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+
+      lucide.createIcons();
+    }
+
+    function refreshDashboard() {
+      const filtered = getFilteredTransactions();
+      updateKPIs(filtered);
+      renderPieChart(filtered);
+      renderBarChart(filtered);
+      renderTransactionHistory(filtered);
+    }
+
+    function refreshAllUI() {
+      renderCategoryDropdowns();
+      renderCustomCategoriesModalList();
+      refreshDashboard();
+    }
+
+    // =========================================================================
+    // 9. TRANSACTION CRUD ACTIONS
+    // =========================================================================
+    window.editTransaction = function (id) {
+      const tx = transactions.find((item) => item.id === id);
+      if (!tx) return;
+
+      document.getElementById('edit-id').value = tx.id;
+      setTransactionTypeUI(tx.type);
+      document.getElementById('tx-category').value = tx.category;
+      document.getElementById('tx-amount').value = tx.amount;
+      document.getElementById('tx-date').value = tx.date;
+      document.getElementById('tx-desc').value = tx.description;
+
+      document.getElementById('form-heading').innerHTML = `
+        <i data-lucide="edit-3" class="w-5 h-5 text-amber-400"></i>
+        Edit Transaction
+      `;
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+      lucide.createIcons();
+
+      scrollToSection('section-add-form');
+    };
+
+    window.deleteTransaction = async function (id) {
+      const confirmed = await customConfirm(
+        'Delete Transaction?',
+        'Are you sure you want to permanently remove this transaction record?',
+        'Delete'
+      );
+      if (!confirmed) return;
+
+      if (isSupabaseConnected && supabaseClient) {
+        const { error } = await supabaseClient.from('transactions').delete().eq('id', id);
+        if (error) {
+          showToast('Supabase delete error: ' + error.message, 'error');
+          return;
         }
-        updateCategoryDropdown();
-        document.getElementById('category').value = record.category;
-        document.getElementById('amount').value = record.amount;
-        document.getElementById('remarks').value = record.remarks || '';
+      }
 
-        document.getElementById('entrySectionTitle').innerText = 'Edit Transaction Record';
-        document.getElementById('submitBtn').innerText = 'Update Record';
-        document.getElementById('cancelEditBtn').style.display = 'inline-block';
-        document.getElementById('transactionForm').classList.add('editing-mode');
-        document.getElementById('transactionForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      transactions = transactions.filter((item) => item.id !== id);
+      saveLocalState();
+      refreshDashboard();
+      showToast('Transaction deleted.', 'info');
+    };
+
+    function exportToCSV() {
+      const filtered = getFilteredTransactions();
+      if (filtered.length === 0) {
+        showToast('No transactions available to export.', 'error');
+        return;
+      }
+
+      const headers = ['Date', 'Type', 'Category', 'Description', 'Amount (PHP)'];
+      const rows = filtered.map((tx) => [
+        tx.date,
+        tx.type.toUpperCase(),
+        `"${String(tx.category).replace(/"/g, '""')}"`,
+        `"${String(tx.description).replace(/"/g, '""')}"`,
+        tx.type === 'income' ? Number(tx.amount).toFixed(2) : (-Number(tx.amount)).toFixed(2)
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `PesoFlow_Report_${getTodayISO()}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('CSV report downloaded!', 'success');
     }
 
-    function cancelEditTransaction() {
-        editingTransactionId = null;
-        document.getElementById('entrySectionTitle').innerText = 'Transaction Entry';
-        document.getElementById('submitBtn').innerText = 'Save Record';
-        document.getElementById('cancelEditBtn').style.display = 'none';
-        document.getElementById('transactionForm').classList.remove('editing-mode');
-        document.getElementById('amount').value = '';
-        document.getElementById('remarks').value = '';
-        document.getElementById('date').value = new Date().toISOString().split('T')[0];
-    }
+    // =========================================================================
+    // 10. EVENT LISTENERS & INITIALIZATION
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Theme initialization
+      const savedTheme = localStorage.getItem(KEYS.THEME);
+      if (savedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
 
-    async function saveTransaction(e) {
+      // Load local categories & transactions first for instant render
+      loadLocalState();
+      document.getElementById('tx-date').value = getTodayISO();
+      setTransactionTypeUI('expense');
+      refreshAllUI();
+      lucide.createIcons();
+
+      // Attempt auto-connect to Supabase if credentials exist in session/local storage
+      await tryAutoConnectSupabase();
+
+      // Form Type Buttons
+      document.getElementById('type-btn-expense').addEventListener('click', () => setTransactionTypeUI('expense'));
+      document.getElementById('type-btn-income').addEventListener('click', () => setTransactionTypeUI('income'));
+      document.getElementById('cancel-edit-btn').addEventListener('click', resetEntryForm);
+
+      // Transaction Form Submit (Create or Update)
+      document.getElementById('transaction-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const date = document.getElementById('date').value;
-        const type = document.getElementById('type').value;
-        const category = document.getElementById('category').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-        const remarks = document.getElementById('remarks').value.trim();
+        const editId = document.getElementById('edit-id').value;
+        const type = document.getElementById('tx-type').value;
+        const amount = parseFloat(document.getElementById('tx-amount').value);
+        const category = document.getElementById('tx-category').value;
+        const date = document.getElementById('tx-date').value;
+        const description = document.getElementById('tx-desc').value.trim();
 
-        if (!category) return alert("Please add a category first.");
+        if (!amount || amount <= 0 || !category || !date || !description) {
+          showToast('Please complete all required fields.', 'error');
+          return;
+        }
 
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-
-        if (editingTransactionId !== null) {
-            const updatedRecord = {
-                id: editingTransactionId,
-                date,
-                type,
-                category,
-                amount,
-                remarks
-            };
-
-            transactions = transactions.map(t => Number(t.id) === editingTransactionId ? updatedRecord : t);
-            saveLocalCache();
-
-            if (supabaseClient) {
-                try {
-                    setCloudStatus('', '🔄 Updating record...');
-                    const { error } = await supabaseClient
-                        .from('finance_transactions')
-                        .update({ date, type, category, amount, remarks })
-                        .eq('id', editingTransactionId);
-                    if (error) throw error;
-                    setCloudStatus('online', '☁️ Supabase Cloud Active');
-                } catch (err) {
-                    console.error('Supabase update error:', err);
-                    setCloudStatus('offline', '⚠️ Sync Error (Saved Locally)');
-                    alert('Updated locally, but failed to sync update to Supabase.');
-                }
+        if (editId) {
+          // Update existing
+          if (isSupabaseConnected && supabaseClient) {
+            const { error } = await supabaseClient
+              .from('transactions')
+              .update({ type, amount, category, date, description })
+              .eq('id', editId);
+            if (error) {
+              showToast('Supabase update error: ' + error.message, 'error');
+              return;
             }
+          }
 
-            cancelEditTransaction();
+          const idx = transactions.findIndex((t) => t.id === editId);
+          if (idx !== -1) {
+            transactions[idx] = { id: editId, type, amount, category, date, description };
+          }
+          showToast('Transaction updated!', 'success');
         } else {
-            const newRecord = {
-                id: Date.now(),
-                date,
-                type,
-                category,
-                amount,
-                remarks
-            };
+          // Insert new
+          let newTx = {
+            id: crypto.randomUUID(),
+            type,
+            amount,
+            category,
+            date,
+            description
+          };
 
-            transactions.push(newRecord);
-            saveLocalCache();
-
-            if (supabaseClient) {
-                try {
-                    setCloudStatus('', '🔄 Saving to Supabase...');
-                    const { error } = await supabaseClient
-                        .from('finance_transactions')
-                        .insert(newRecord);
-                    if (error) throw error;
-                    setCloudStatus('online', '☁️ Supabase Cloud Active');
-                } catch (err) {
-                    console.error('Supabase insert error:', err);
-                    setCloudStatus('offline', '⚠️ Sync Error (Saved Locally)');
-                    alert('Saved locally, but failed to sync to Supabase.');
-                }
+          if (isSupabaseConnected && supabaseClient) {
+            const { data, error } = await supabaseClient
+              .from('transactions')
+              .insert([{ type, amount, category, date, description }])
+              .select()
+              .single();
+            if (error) {
+              showToast('Supabase insert error: ' + error.message, 'error');
+              return;
             }
+            if (data) {
+              newTx = { ...data, amount: Number(data.amount) };
+            }
+          }
 
-            document.getElementById('amount').value = '';
-            document.getElementById('remarks').value = '';
+          transactions.unshift(newTx);
+          showToast(type === 'income' ? 'Income logged!' : 'Expense logged!', 'success');
         }
 
-        submitBtn.disabled = false;
-        monthFilterInput.value = date.substring(0, 7);
-        renderApp();
-    }
+        saveLocalState();
+        resetEntryForm();
+        refreshDashboard();
+      });
 
-    async function deleteTransaction(id) {
-        if (confirm("Delete this record permanently?")) {
-            const targetId = Number(id);
-            if (editingTransactionId === targetId) {
-                cancelEditTransaction();
-            }
+      // Pie Chart Mode Toggle (Expense vs Income)
+      document.getElementById('pie-mode-expense').addEventListener('click', () => {
+        pieChartMode = 'expense';
+        document.getElementById('pie-chart-title').textContent = 'Expenses by Category';
+        document.getElementById('pie-mode-expense').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition';
+        document.getElementById('pie-mode-income').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+        renderPieChart(getFilteredTransactions());
+      });
 
-            transactions = transactions.filter(t => Number(t.id) !== targetId);
-            saveLocalCache();
-            renderApp();
+      document.getElementById('pie-mode-income').addEventListener('click', () => {
+        pieChartMode = 'income';
+        document.getElementById('pie-chart-title').textContent = 'Income by Category';
+        document.getElementById('pie-mode-income').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-white shadow transition';
+        document.getElementById('pie-mode-expense').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+        renderPieChart(getFilteredTransactions());
+      });
 
-            if (supabaseClient) {
-                try {
-                    setCloudStatus('', '🔄 Deleting from Supabase...');
-                    const { error } = await supabaseClient
-                        .from('finance_transactions')
-                        .delete()
-                        .eq('id', targetId);
-                    if (error) throw error;
-                    setCloudStatus('online', '☁️ Supabase Cloud Active');
-                } catch (err) {
-                    console.error('Supabase delete error:', err);
-                    setCloudStatus('offline', '⚠️ Sync Error (Deleted Locally)');
-                }
-            }
-        }
-    }
-
-    // --- RENDER DASHBOARD & HISTORY TABLE ---
-    function renderApp() {
-        const tableBody = document.getElementById('tableBody');
-        const incCatList = document.getElementById('incCatList'), expCatList = document.getElementById('expCatList');
-        const filterValue = monthFilterInput.value;
-        
-        const searchInput = document.getElementById('searchHistory');
-        const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
-        
-        tableBody.innerHTML = '';
-        
-        let totalInc = 0, totalExp = 0, overallInc = 0, overallExp = 0;
-        let catBreakdown = { Income: {}, Expense: {} };
-        let displayCount = 0;
-
-        [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
-            if (t.type === 'Income') overallInc += t.amount;
-            if (t.type === 'Expense') overallExp += t.amount;
-
-            if (t.date.substring(0, 7) === filterValue) {
-                if (t.type === 'Income') totalInc += t.amount;
-                if (t.type === 'Expense') totalExp += t.amount;
-
-                if(!catBreakdown[t.type][t.category]) catBreakdown[t.type][t.category] = 0;
-                catBreakdown[t.type][t.category] += t.amount;
-
-                const isMatch = t.category.toLowerCase().includes(searchQuery) || 
-                                (t.remarks && t.remarks.toLowerCase().includes(searchQuery)) || 
-                                t.type.toLowerCase().includes(searchQuery) || 
-                                t.date.includes(searchQuery);
-
-                if (isMatch) {
-                    if (displayCount < 30) {
-                        tableBody.innerHTML += `<tr>
-                            <td>${escapeHTML(t.date)}</td>
-                            <td><span class="badge badge-${escapeHTML(t.type.toLowerCase())}">${escapeHTML(t.type)}</span></td>
-                            <td>${escapeHTML(t.category)}</td>
-                            <td style="font-weight:600;">${formatCurrency(t.amount)}</td>
-                            <td style="color:var(--text-muted);">${escapeHTML(t.remarks) || '-'}</td>
-                            <td>
-                                <div class="action-cell">
-                                    <button class="edit-btn" onclick="startEditTransaction(${Number(t.id)})">Edit</button>
-                                    <button class="delete-btn" onclick="deleteTransaction(${Number(t.id)})">Delete</button>
-                                </div>
-                            </td>
-                        </tr>`;
-                        displayCount++;
-                    }
-                }
-            }
+      // Bar Chart Range Buttons
+      document.querySelectorAll('.bar-range-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          barChartRange = btn.dataset.barRange;
+          document.querySelectorAll('.bar-range-btn').forEach((b) => {
+            b.className = 'bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition';
+          });
+          btn.className = 'bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-white shadow transition';
+          renderBarChart(getFilteredTransactions());
         });
+      });
 
-        if (tableBody.innerHTML === '') {
-            tableBody.innerHTML = `<tr><td colspan="6" class="empty-cat" style="padding: 30px;">No transactions found for this period.</td></tr>`;
-        } else if (displayCount >= 30) {
-            tableBody.innerHTML += `<tr><td colspan="6" class="empty-cat" style="padding: 15px;">Showing top 30 records. Older records are hidden.</td></tr>`;
+      // Filters
+      ['filter-search', 'filter-type', 'filter-category', 'filter-month'].forEach((id) => {
+        document.getElementById(id).addEventListener('input', refreshDashboard);
+        document.getElementById(id).addEventListener('change', refreshDashboard);
+      });
+
+      document.getElementById('reset-filters-btn').addEventListener('click', () => {
+        document.getElementById('filter-search').value = '';
+        document.getElementById('filter-type').value = 'all';
+        document.getElementById('filter-category').value = 'all';
+        document.getElementById('filter-month').value = '';
+        refreshDashboard();
+      });
+
+      // Custom Categories Modal Open / Close
+      const categoriesModal = document.getElementById('categories-modal');
+      const openCategoriesModal = (preferredType = null) => {
+        const typeToOpen = preferredType || document.getElementById('tx-type').value || 'expense';
+        switchCategoryModalTab(typeToOpen);
+        resetCategoryForm();
+        categoriesModal.classList.remove('hidden');
+        categoriesModal.classList.add('flex');
+      };
+
+      document.getElementById('open-categories-btn').addEventListener('click', () => openCategoriesModal());
+      document.getElementById('quick-add-cat-btn').addEventListener('click', () => openCategoriesModal());
+      document.getElementById('close-categories-modal').addEventListener('click', () => {
+        categoriesModal.classList.add('hidden');
+        categoriesModal.classList.remove('flex');
+      });
+
+      document.getElementById('cat-tab-expense').addEventListener('click', () => {
+        switchCategoryModalTab('expense');
+        resetCategoryForm();
+      });
+      document.getElementById('cat-tab-income').addEventListener('click', () => {
+        switchCategoryModalTab('income');
+        resetCategoryForm();
+      });
+      document.getElementById('cat-cancel-edit').addEventListener('click', resetCategoryForm);
+
+      // Save / Update Custom Category
+      document.getElementById('category-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('cat-edit-id').value;
+        const type = document.getElementById('cat-type').value;
+        const name = document.getElementById('cat-name').value.trim();
+        const color = document.getElementById('cat-color').value;
+
+        if (!name) return;
+
+        // Prevent duplicate name in same type
+        const duplicate = categories.find(
+          (c) => c.type === type && c.name.toLowerCase() === name.toLowerCase() && c.id !== editId
+        );
+        if (duplicate) {
+          showToast(`Category "${name}" already exists under ${type}.`, 'error');
+          return;
         }
 
-        document.getElementById('allTimeIncome').innerText = formatCurrency(overallInc);
-        document.getElementById('allTimeExpense').innerText = formatCurrency(overallExp);
-        document.getElementById('allTimeBalance').innerText = formatCurrency(overallInc - overallExp);
-        document.getElementById('totalIncome').innerText = formatCurrency(totalInc);
-        document.getElementById('totalExpense').innerText = formatCurrency(totalExp);
-        document.getElementById('netBalance').innerText = formatCurrency(totalInc - totalExp);
-
-        const renderCat = (type, el, klass) => {
-            el.innerHTML = '';
-            let keys = Object.keys(catBreakdown[type]).sort((a, b) => catBreakdown[type][b] - catBreakdown[type][a]);
-            if(keys.length === 0) el.innerHTML = `<div class="empty-cat">No data.</div>`;
-            keys.forEach(cat => el.innerHTML += `<div class="cat-row"><span>${escapeHTML(cat)}</span><span class="cat-amount ${klass}">${formatCurrency(catBreakdown[type][cat])}</span></div>`);
-        };
-        renderCat('Income', incCatList, 'inc');
-        renderCat('Expense', expCatList, 'exp');
-    }
-
-    // --- BACKUP & RESTORE ---
-    function exportData() {
-        const dataStr = JSON.stringify({ transactions, categories }, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', 'Master_Gibo_Finance_Backup.json');
-        linkElement.click();
-    }
-
-    function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                if (importedData.transactions && importedData.categories) {
-                    transactions = importedData.transactions;
-                    categories = importedData.categories;
-                    saveLocalCache();
-                    updateCategoryDropdown();
-                    renderApp();
-
-                    if (supabaseClient) {
-                        setCloudStatus('', '🔄 Syncing backup to Supabase...');
-                        await syncAllLocalToSupabase();
-                        setCloudStatus('online', '☁️ Supabase Cloud Active');
-                    }
-                    alert("Data successfully restored & synced to Supabase!");
-                } else {
-                    alert("Invalid backup format.");
-                }
-            } catch (err) {
-                console.error('Import error:', err);
-                alert("Error reading or syncing file.");
+        if (editId) {
+          const oldCat = categories.find((c) => c.id === editId);
+          if (isSupabaseConnected && supabaseClient) {
+            const { error } = await supabaseClient
+              .from('categories')
+              .update({ type, name, color })
+              .eq('id', editId);
+            if (error) {
+              showToast('Supabase category update failed: ' + error.message, 'error');
+              return;
             }
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    }
+          }
 
-    // --- INITIAL STARTUP ---
-    updateCategoryDropdown();
-    renderApp();
-    loadFromSupabase();
-</script>
+          if (oldCat) {
+            // Update transactions referencing old category name
+            transactions.forEach((tx) => {
+              if (tx.category === oldCat.name && tx.type === oldCat.type) {
+                tx.category = name;
+              }
+            });
+            oldCat.type = type;
+            oldCat.name = name;
+            oldCat.color = color;
+          }
+          showToast('Category updated!', 'success');
+        } else {
+          let newCat = {
+            id: crypto.randomUUID(),
+            type,
+            name,
+            color
+          };
+
+          if (isSupabaseConnected && supabaseClient) {
+            const { data, error } = await supabaseClient
+              .from('categories')
+              .insert([{ type, name, color }])
+              .select()
+              .single();
+            if (error) {
+              showToast('Supabase category insert failed: ' + error.message, 'error');
+              return;
+            }
+            if (data) newCat = data;
+          }
+
+          categories.push(newCat);
+          showToast(`Added "${name}" category!`, 'success');
+        }
+
+        saveLocalState();
+        switchCategoryModalTab(type);
+        resetCategoryForm();
+        refreshAllUI();
+
+        // Automatically select the newly created category in the transaction form if types match
+        if (document.getElementById('tx-type').value === type) {
+          document.getElementById('tx-category').value = name;
+        }
+      });
+
+      // Supabase Modal Open / Close
+      const sbModal = document.getElementById('supabase-modal');
+      const openSbModal = () => {
+        sbModal.classList.remove('hidden');
+        sbModal.classList.add('flex');
+      };
+      document.getElementById('open-supabase-btn').addEventListener('click', openSbModal);
+      document.getElementById('header-db-badge').addEventListener('click', openSbModal);
+      document.getElementById('close-supabase-modal').addEventListener('click', () => {
+        sbModal.classList.add('hidden');
+        sbModal.classList.remove('flex');
+      });
+
+      // Connect Supabase Form
+      document.getElementById('supabase-config-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = document.getElementById('sb-url').value.trim();
+        const anonKey = document.getElementById('sb-anon-key').value.trim();
+        const remember = document.getElementById('sb-remember-local').checked;
+
+        if (!url || !anonKey) return;
+
+        sessionStorage.setItem(KEYS.SB_URL, url);
+        sessionStorage.setItem(KEYS.SB_ANON, anonKey);
+        localStorage.setItem(KEYS.SB_REMEMBER, remember ? 'true' : 'false');
+
+        if (remember) {
+          localStorage.setItem(KEYS.SB_URL, url);
+          localStorage.setItem(KEYS.SB_ANON, anonKey);
+        } else {
+          localStorage.removeItem(KEYS.SB_URL);
+          localStorage.removeItem(KEYS.SB_ANON);
+        }
+
+        await connectAndSyncSupabase(url, anonKey, false);
+      });
+
+      // Disconnect Supabase
+      document.getElementById('sb-disconnect-btn').addEventListener('click', () => {
+        supabaseClient = null;
+        sessionStorage.removeItem(KEYS.SB_URL);
+        sessionStorage.removeItem(KEYS.SB_ANON);
+        localStorage.removeItem(KEYS.SB_URL);
+        localStorage.removeItem(KEYS.SB_ANON);
+        updateSupabaseBadgeUI(false);
+        showToast('Disconnected from Supabase. Switched to Local Mode.', 'info');
+      });
+
+      // Push Local Transactions to Supabase
+      document.getElementById('sb-push-local-btn').addEventListener('click', async () => {
+        if (!isSupabaseConnected || !supabaseClient) {
+          showToast('Please connect to Supabase first.', 'error');
+          return;
+        }
+        if (transactions.length === 0) {
+          showToast('No local transactions to upload.', 'info');
+          return;
+        }
+
+        const ok = await customConfirm(
+          'Upload Local Records to Supabase?',
+          `This will insert ${transactions.length} local transactions into your Supabase database.`,
+          'Upload Now'
+        );
+        if (!ok) return;
+
+        const payload = transactions.map((tx) => ({
+          type: tx.type,
+          amount: Number(tx.amount),
+          category: tx.category,
+          date: tx.date,
+          description: tx.description
+        }));
+
+        const { error } = await supabaseClient.from('transactions').insert(payload);
+        if (error) {
+          showToast('Upload error: ' + error.message, 'error');
+          return;
+        }
+
+        const url = document.getElementById('sb-url').value.trim();
+        const anon = document.getElementById('sb-anon-key').value.trim();
+        await connectAndSyncSupabase(url, anon, true);
+        showToast('All local transactions uploaded to Supabase!', 'success');
+      });
+
+      // One-Click Copy SQL Schema (using execCommand fallback for iframe compatibility)
+      document.getElementById('copy-sql-btn').addEventListener('click', () => {
+        const sqlText = document.getElementById('sql-schema-code').textContent;
+        const tempArea = document.createElement('textarea');
+        tempArea.value = sqlText;
+        tempArea.style.position = 'fixed';
+        tempArea.style.opacity = '0';
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Supabase SQL Schema copied to clipboard!', 'success');
+        } catch (err) {
+          showToast('Failed to copy SQL. Please select and copy manually.', 'error');
+        }
+        document.body.removeChild(tempArea);
+      });
+
+      // Load Sample Data & Reset All
+      document.getElementById('load-sample-btn').addEventListener('click', async () => {
+        const ok = await customConfirm(
+          'Load Sample Transactions?',
+          'This will add sample transactions using your current categories so you can preview the charts.',
+          'Load Samples'
+        );
+        if (!ok) return;
+
+        const samples = generateSampleTransactions();
+        if (isSupabaseConnected && supabaseClient) {
+          const payload = samples.map(({ type, amount, category, date, description }) => ({
+            type,
+            amount,
+            category,
+            date,
+            description
+          }));
+          const { data, error } = await supabaseClient.from('transactions').insert(payload).select();
+          if (!error && data) {
+            transactions = [...data.map((d) => ({ ...d, amount: Number(d.amount) })), ...transactions];
+          }
+        } else {
+          transactions = [...samples, ...transactions];
+        }
+
+        saveLocalState();
+        refreshDashboard();
+        showToast('Sample transactions loaded!', 'success');
+      });
+
+      document.getElementById('clear-all-btn').addEventListener('click', async () => {
+        const ok = await customConfirm(
+          'Reset All Transactions?',
+          'This will clear all logged transactions so you can start with a clean slate.',
+          'Clear All'
+        );
+        if (!ok) return;
+
+        if (isSupabaseConnected && supabaseClient) {
+          const { error } = await supabaseClient
+            .from('transactions')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+          if (error) {
+            showToast('Supabase clear failed: ' + error.message, 'error');
+            return;
+          }
+        }
+
+        transactions = [];
+        saveLocalState();
+        refreshDashboard();
+        showToast('All transactions cleared.', 'info');
+      });
+
+      // Export CSV
+      document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
+
+      // Theme Toggle
+      document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem(KEYS.THEME, isDark ? 'dark' : 'light');
+        refreshDashboard();
+      });
+    });
+  </script>
 </body>
 </html>
