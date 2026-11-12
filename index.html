@@ -138,107 +138,10 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- MODAL 1: CUSTOMIZE CATEGORIES MANAGER                                   -->
-  <!-- ======================================================================= -->
-  <div id="categories-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
-    <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
-      <!-- Modal Header -->
-      <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
-            <i data-lucide="tags" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Manage Custom Categories</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Add, edit, or delete your own Income & Expense categories</p>
-          </div>
-        </div>
-        <button id="close-categories-modal" class="touch-target w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition" aria-label="Close">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-5 overflow-y-auto space-y-5">
-        <!-- Add / Edit Category Form -->
-        <form id="category-form" class="p-4 rounded-2xl bg-slate-100/80 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3">
-          <input type="hidden" id="cat-edit-id" value="" />
-          <div class="flex items-center justify-between">
-            <span id="cat-form-title" class="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">
-              Add New Category
-            </span>
-            <button type="button" id="cat-cancel-edit" class="hidden text-xs font-semibold text-amber-400 hover:underline">
-              Cancel Edit
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-            <!-- Category Type -->
-            <div class="sm:col-span-4">
-              <label for="cat-type" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Type</label>
-              <select id="cat-type" class="touch-target w-full px-3 py-2 rounded-xl bg-white dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-              </select>
-            </div>
-
-            <!-- Category Name -->
-            <div class="sm:col-span-6">
-              <label for="cat-name" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Category Name</label>
-              <input
-                type="text"
-                id="cat-name"
-                required
-                maxlength="40"
-                placeholder="e.g. Salary, Groceries, Gas..."
-                class="touch-target w-full px-3 py-2 rounded-xl bg-white dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <!-- Badge Color -->
-            <div class="sm:col-span-2">
-              <label for="cat-color" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Color</label>
-              <input
-                type="color"
-                id="cat-color"
-                value="#6366f1"
-                class="touch-target w-full h-11 p-1 rounded-xl bg-white dark:bg-slatebase border border-slate-300 dark:border-slate-700 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <button type="submit" id="cat-submit-btn" class="touch-target w-full py-2.5 px-4 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span id="cat-submit-label">Save Category</span>
-          </button>
-        </form>
-
-        <!-- Filter Tabs inside Modal -->
-        <div class="flex items-center justify-between gap-2">
-          <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
-            <button type="button" id="cat-tab-expense" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition">
-              Expense Categories
-            </button>
-            <button type="button" id="cat-tab-income" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
-              Income Categories
-            </button>
-          </div>
-          <span id="cat-list-count" class="text-xs font-mono text-slate-500 dark:text-slate-400">0 items</span>
-        </div>
-
-        <!-- Existing Custom Categories List -->
-        <div id="custom-categories-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-          <!-- Rendered dynamically via JS -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ======================================================================= -->
-  <!-- MODAL 2: SUPABASE POSTGRESQL CONNECTION & SQL SCHEMA                    -->
+  <!-- MODAL 2: DIRECT SUPABASE CONNECTION MODAL                               -->
   <!-- ======================================================================= -->
   <div id="supabase-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
-    <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
+    <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-md w-full flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
       <!-- Modal Header -->
       <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2.5">
@@ -246,8 +149,8 @@
             <i data-lucide="database" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Supabase PostgreSQL Setup</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Connect your cloud database or copy the SQL schema</p>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Connect Supabase</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Sync categories & transactions directly</p>
           </div>
         </div>
         <button id="close-supabase-modal" class="touch-target w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition" aria-label="Close">
@@ -256,12 +159,12 @@
       </div>
 
       <!-- Modal Body -->
-      <div class="p-5 overflow-y-auto space-y-5">
+      <div class="p-5 overflow-y-auto space-y-4">
         <!-- Connection Status Banner -->
         <div id="sb-modal-status" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3">
           <div class="flex items-center gap-2.5 text-xs sm:text-sm text-amber-300">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
-            <span id="sb-modal-status-text">Currently running in Local Session Mode.</span>
+            <span id="sb-modal-status-text">Not connected to Supabase yet.</span>
           </div>
           <button type="button" id="sb-disconnect-btn" class="hidden px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 transition shrink-0">
             Disconnect
@@ -296,95 +199,21 @@
             />
           </div>
 
-          <!-- Optional Remember Credentials in LocalStorage -->
-          <div class="flex items-center justify-between gap-2 pt-1">
-            <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-600 dark:text-slate-300">
-              <input type="checkbox" id="sb-remember-local" class="w-4 h-4 rounded accent-emerald-500" />
-              <span>Remember credentials on this device (localStorage)</span>
-            </label>
-            <span class="text-[11px] text-slate-400">Default: sessionStorage</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-            <button type="submit" id="sb-connect-btn" class="touch-target py-2.5 px-4 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition">
-              <i data-lucide="plug-zap" class="w-4 h-4"></i>
-              Connect & Sync Data
-            </button>
-            <button type="button" id="sb-push-local-btn" class="touch-target py-2.5 px-4 rounded-xl text-sm font-semibold bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center gap-2 transition">
-              <i data-lucide="cloud-upload" class="w-4 h-4"></i>
-              Upload Local Data to Supabase
-            </button>
-          </div>
+          <button type="submit" id="sb-connect-btn" class="touch-target w-full py-3 px-4 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition">
+            <i data-lucide="plug-zap" class="w-4 h-4"></i>
+            Connect & Sync Now
+          </button>
         </form>
-
-        <!-- PostgreSQL Schema Box -->
-        <div class="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-800">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
-                Supabase PostgreSQL Schema
-              </h4>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                Run this script once in your Supabase Dashboard → SQL Editor
-              </p>
-            </div>
-            <button type="button" id="copy-sql-btn" class="touch-target px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow flex items-center gap-1.5 transition shrink-0">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              Copy SQL Schema
-            </button>
-          </div>
-
-          <pre id="sql-schema-code" class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-emerald-300 overflow-x-auto max-h-52 leading-relaxed select-all">-- 1. Create Custom Categories Table
-CREATE TABLE IF NOT EXISTS public.categories (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
-  color TEXT NOT NULL DEFAULT '#6366f1',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- 2. Create Transactions Table
-CREATE TABLE IF NOT EXISTS public.transactions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  type TEXT NOT NULL CHECK (type IN ('income', 'expense')),
-  amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
-  category TEXT NOT NULL,
-  date DATE NOT NULL DEFAULT CURRENT_DATE,
-  description TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- 3. Performance Indexes
-CREATE INDEX IF NOT EXISTS idx_transactions_date ON public.transactions (date DESC);
-CREATE INDEX IF NOT EXISTS idx_transactions_type ON public.transactions (type);
-CREATE INDEX IF NOT EXISTS idx_categories_type ON public.categories (type);
-
--- 4. Enable Row Level Security (RLS) & Open Policies for Personal Anon Key Usage
-ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Allow full access to categories" ON public.categories;
-CREATE POLICY "Allow full access to categories"
-  ON public.categories FOR ALL
-  USING (true)
-  WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Allow full access to transactions" ON public.transactions;
-CREATE POLICY "Allow full access to transactions"
-  ON public.transactions FOR ALL
-  USING (true)
-  WITH CHECK (true);</pre>
-        </div>
       </div>
     </div>
   </div>
 
   <!-- ======================================================================= -->
-  <!-- TOP NAVIGATION HEADER (MOBILE-FIRST COMPACT)                            -->
+  <!-- TOP NAVIGATION HEADER (CLEAN & MOBILE-FIRST)                            -->
   <!-- ======================================================================= -->
   <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slatebase/85 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
-      <!-- Brand Identity -->
+      <!-- Brand Identity & Direct Supabase Status Pill -->
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-500/20 shrink-0">
           ₱
@@ -394,14 +223,13 @@ CREATE POLICY "Allow full access to transactions"
             <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
               PesoFlow
             </h1>
-            <!-- Live Connection Pill -->
-            <button id="header-db-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0" title="Configure Supabase Connection">
+            <button id="header-db-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0" title="Click to connect Supabase">
               <span id="header-db-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span id="header-db-text">Local Mode</span>
+              <span id="header-db-text">Connect Supabase</span>
             </button>
           </div>
           <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
-            Daily Income & Expense Monitor (PHP)
+            Daily Income & Expense Tracker
           </p>
         </div>
       </div>
@@ -414,10 +242,10 @@ CREATE POLICY "Allow full access to transactions"
           <span class="hidden sm:inline">Categories</span>
         </button>
 
-        <!-- Supabase Setup Button -->
-        <button id="open-supabase-btn" class="touch-target px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Supabase SQL & Connection Setup">
-          <i data-lucide="database" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Supabase SQL</span>
+        <!-- Export CSV Button -->
+        <button id="header-export-csv-btn" class="touch-target px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Export Transactions to CSV">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Export CSV</span>
         </button>
 
         <!-- Theme Toggle -->
@@ -433,22 +261,6 @@ CREATE POLICY "Allow full access to transactions"
   <!-- MAIN DASHBOARD CONTENT                                                  -->
   <!-- ======================================================================= -->
   <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
-
-    <!-- Quick Utility Strip -->
-    <div class="flex flex-wrap items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-2xl glass-card">
-      <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-        <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-        <span>Customize your categories anytime or sync live with <strong>Supabase</strong>.</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="load-sample-btn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500/25 border border-indigo-500/25 transition">
-          Load Sample Data
-        </button>
-        <button id="clear-all-btn" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/15 text-rose-600 dark:text-rose-300 hover:bg-rose-500/25 border border-rose-500/25 transition">
-          Reset All
-        </button>
-      </div>
-    </div>
 
     <!-- ===================================================================== -->
     <!-- SECTION 1: SUMMARY KPI CARDS (2x2 ON MOBILE, 4 COLS ON DESKTOP)       -->
@@ -848,39 +660,34 @@ CREATE POLICY "Allow full access to transactions"
 
   <script>
     /**
-     * PesoFlow — Mobile-First Daily Income & Expense Tracker
-     * Features:
-     * - Full English labels & mobile-optimized card + table views
-     * - Customizable Income & Expense categories (Add, Edit, Delete, Color Picker)
-     * - Live Supabase PostgreSQL integration + one-click SQL Schema copy
-     * - Interactive Chart.js Doughnut & Bar Charts
+     * =========================================================================
+     * DIRECT SUPABASE CONFIGURATION
+     * Paste your Supabase Project URL and Anon Public Key below to auto-connect
+     * immediately on page load with zero clicks, or connect via the header badge.
+     * =========================================================================
      */
+    const SUPABASE_URL = '';
+    const SUPABASE_ANON_KEY = '';
 
     // =========================================================================
     // 1. STATE & STORAGE KEYS
     // =========================================================================
     const KEYS = {
-      CATEGORIES: 'pesoflow_custom_categories_v2',
-      TRANSACTIONS: 'pesoflow_transactions_v2',
+      CATEGORIES: 'pesoflow_custom_categories_v3',
+      TRANSACTIONS: 'pesoflow_transactions_v3',
       SB_URL: 'pesoflow_sb_url',
       SB_ANON: 'pesoflow_sb_anon',
-      SB_REMEMBER: 'pesoflow_sb_remember',
       THEME: 'pesoflow_theme'
     };
 
     const STARTER_CATEGORIES = [
-      // Starter Income Categories (Fully editable/deletable by user)
       { id: 'cat_inc_1', name: 'Salary', type: 'income', color: '#10b981' },
       { id: 'cat_inc_2', name: 'Freelance', type: 'income', color: '#0ea5e9' },
       { id: 'cat_inc_3', name: 'Business', type: 'income', color: '#14b8a6' },
-      { id: 'cat_inc_4', name: 'Other Income', type: 'income', color: '#8b5cf6' },
-      // Starter Expense Categories (Fully editable/deletable by user)
       { id: 'cat_exp_1', name: 'Food & Dining', type: 'expense', color: '#f43f5e' },
       { id: 'cat_exp_2', name: 'Fuel & Transport', type: 'expense', color: '#f97316' },
       { id: 'cat_exp_3', name: 'Bills & Utilities', type: 'expense', color: '#eab308' },
-      { id: 'cat_exp_4', name: 'Groceries & Supplies', type: 'expense', color: '#22c55e' },
-      { id: 'cat_exp_5', name: 'Maintenance', type: 'expense', color: '#06b6d4' },
-      { id: 'cat_exp_6', name: 'Other Expense', type: 'expense', color: '#64748b' }
+      { id: 'cat_exp_4', name: 'Groceries', type: 'expense', color: '#22c55e' }
     ];
 
     let categories = [];
@@ -910,14 +717,6 @@ CREATE POLICY "Allow full access to transactions"
       const now = new Date();
       const offset = now.getTimezoneOffset();
       const local = new Date(now.getTime() - offset * 60 * 1000);
-      return local.toISOString().split('T')[0];
-    }
-
-    function getOffsetDateISO(daysAgo) {
-      const d = new Date();
-      d.setDate(d.getDate() - daysAgo);
-      const offset = d.getTimezoneOffset();
-      const local = new Date(d.getTime() - offset * 60 * 1000);
       return local.toISOString().split('T')[0];
     }
 
@@ -1003,37 +802,15 @@ CREATE POLICY "Allow full access to transactions"
     }
 
     // =========================================================================
-    // 3. LOCAL STORAGE & SAMPLE DATA
+    // 3. SESSION STORAGE STATE (CLEAN EMPTY INITIAL STATE)
     // =========================================================================
     function saveLocalState() {
       sessionStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
       sessionStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(transactions));
-      localStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
-      localStorage.setItem(KEYS.TRANSACTIONS, JSON.stringify(transactions));
-    }
-
-    function generateSampleTransactions() {
-      const incCats = categories.filter((c) => c.type === 'income');
-      const expCats = categories.filter((c) => c.type === 'expense');
-      const inc1 = incCats[0]?.name || 'Salary';
-      const inc2 = incCats[1]?.name || inc1;
-      const exp1 = expCats[0]?.name || 'Food & Dining';
-      const exp2 = expCats[1]?.name || exp1;
-      const exp3 = expCats[2]?.name || exp1;
-
-      return [
-        { id: crypto.randomUUID(), type: 'income', amount: 22000.00, category: inc1, date: getOffsetDateISO(6), description: '15th Payroll Deposit' },
-        { id: crypto.randomUUID(), type: 'expense', amount: 2450.00, category: exp1, date: getOffsetDateISO(5), description: 'Weekly groceries & fresh produce' },
-        { id: crypto.randomUUID(), type: 'expense', amount: 1850.00, category: exp3, date: getOffsetDateISO(4), description: 'Electricity & Fiber Internet bill' },
-        { id: crypto.randomUUID(), type: 'income', amount: 6500.00, category: inc2, date: getOffsetDateISO(3), description: 'Client project milestone' },
-        { id: crypto.randomUUID(), type: 'expense', amount: 650.00, category: exp2, date: getOffsetDateISO(2), description: 'Full tank gasoline' },
-        { id: crypto.randomUUID(), type: 'expense', amount: 420.00, category: exp1, date: getOffsetDateISO(1), description: 'Dinner with family' },
-        { id: crypto.randomUUID(), type: 'expense', amount: 240.00, category: exp1, date: getTodayISO(), description: 'Lunch & iced coffee' }
-      ];
     }
 
     function loadLocalState() {
-      const rawCats = sessionStorage.getItem(KEYS.CATEGORIES) || localStorage.getItem(KEYS.CATEGORIES);
+      const rawCats = sessionStorage.getItem(KEYS.CATEGORIES);
       if (rawCats) {
         try {
           const parsed = JSON.parse(rawCats);
@@ -1046,7 +823,7 @@ CREATE POLICY "Allow full access to transactions"
         categories = [...STARTER_CATEGORIES];
       }
 
-      const rawTx = sessionStorage.getItem(KEYS.TRANSACTIONS) || localStorage.getItem(KEYS.TRANSACTIONS);
+      const rawTx = sessionStorage.getItem(KEYS.TRANSACTIONS);
       if (rawTx) {
         try {
           const parsed = JSON.parse(rawTx);
@@ -1057,12 +834,13 @@ CREATE POLICY "Allow full access to transactions"
         } catch (e) {}
       }
 
-      transactions = generateSampleTransactions();
+      // Start with a clean empty transaction list (no sample data)
+      transactions = [];
       saveLocalState();
     }
 
     // =========================================================================
-    // 4. SUPABASE INTEGRATION LAYER
+    // 4. DIRECT SUPABASE INTEGRATION LAYER
     // =========================================================================
     function updateSupabaseBadgeUI(connected, url = '') {
       isSupabaseConnected = connected;
@@ -1076,20 +854,20 @@ CREATE POLICY "Allow full access to transactions"
       if (connected) {
         headerBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:opacity-90 transition shrink-0';
         headerDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
-        headerText.textContent = 'Supabase Live';
+        headerText.textContent = 'Supabase Connected';
 
         modalStatus.className = 'p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3';
         modalStatusText.className = 'text-xs sm:text-sm text-emerald-600 dark:text-emerald-300 font-medium';
-        modalStatusText.textContent = `Connected to Supabase (${url.replace('https://', '').slice(0, 26)}...)`;
+        modalStatusText.textContent = `Connected (${url.replace('https://', '').slice(0, 26)}...)`;
         disconnectBtn.classList.remove('hidden');
       } else {
         headerBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0';
         headerDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
-        headerText.textContent = 'Local Mode';
+        headerText.textContent = 'Connect Supabase';
 
         modalStatus.className = 'p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3';
         modalStatusText.className = 'text-xs sm:text-sm text-amber-700 dark:text-amber-300';
-        modalStatusText.textContent = 'Currently running in Local Mode. Connect Supabase to sync across devices.';
+        modalStatusText.textContent = 'Enter your Supabase URL and Anon Key to sync.';
         disconnectBtn.classList.add('hidden');
       }
     }
@@ -1102,7 +880,7 @@ CREATE POLICY "Allow full access to transactions"
 
         const client = window.supabase.createClient(url, anonKey);
 
-        // Fetch categories & transactions to verify connection and table existence
+        // Fetch categories & transactions directly from Supabase tables
         const [catRes, txRes] = await Promise.all([
           client.from('categories').select('*').order('created_at', { ascending: true }),
           client.from('transactions').select('*').order('date', { ascending: false })
@@ -1114,7 +892,7 @@ CREATE POLICY "Allow full access to transactions"
         supabaseClient = client;
         updateSupabaseBadgeUI(true, url);
 
-        // If Supabase categories table is empty, seed user's current categories
+        // If Supabase categories table is empty, seed starter categories once
         if (catRes.data.length === 0 && categories.length > 0) {
           const seedPayload = categories.map((c) => ({
             name: c.name,
@@ -1132,16 +910,34 @@ CREATE POLICY "Allow full access to transactions"
           categories = catRes.data;
         }
 
-        transactions = (txRes.data || []).map((row) => ({
-          ...row,
-          amount: Number(row.amount)
-        }));
+        // If user already added local transactions before connecting, push them up
+        if (txRes.data.length === 0 && transactions.length > 0) {
+          const pushPayload = transactions.map((tx) => ({
+            type: tx.type,
+            amount: Number(tx.amount),
+            category: tx.category,
+            date: tx.date,
+            description: tx.description
+          }));
+          const { data: pushedTx, error: pushErr } = await supabaseClient
+            .from('transactions')
+            .insert(pushPayload)
+            .select();
+          if (!pushErr && pushedTx) {
+            transactions = pushedTx.map((row) => ({ ...row, amount: Number(row.amount) }));
+          }
+        } else {
+          transactions = (txRes.data || []).map((row) => ({
+            ...row,
+            amount: Number(row.amount)
+          }));
+        }
 
         saveLocalState();
         refreshAllUI();
 
         if (!silent) {
-          showToast('Connected to Supabase PostgreSQL!', 'success');
+          showToast('Connected directly to Supabase!', 'success');
         }
         return true;
       } catch (err) {
@@ -1149,20 +945,18 @@ CREATE POLICY "Allow full access to transactions"
         supabaseClient = null;
         updateSupabaseBadgeUI(false);
         if (!silent) {
-          showToast('Supabase Error: ' + (err.message || 'Check URL, Key, or SQL Schema.'), 'error');
+          showToast('Supabase Error: ' + (err.message || 'Check your Project URL, Anon Key, or tables.'), 'error');
         }
         return false;
       }
     }
 
     async function tryAutoConnectSupabase() {
-      const url = sessionStorage.getItem(KEYS.SB_URL) || localStorage.getItem(KEYS.SB_URL);
-      const anon = sessionStorage.getItem(KEYS.SB_ANON) || localStorage.getItem(KEYS.SB_ANON);
-      const remember = localStorage.getItem(KEYS.SB_REMEMBER) === 'true';
+      const url = SUPABASE_URL.trim() || sessionStorage.getItem(KEYS.SB_URL) || '';
+      const anon = SUPABASE_ANON_KEY.trim() || sessionStorage.getItem(KEYS.SB_ANON) || '';
 
       if (url) document.getElementById('sb-url').value = url;
       if (anon) document.getElementById('sb-anon-key').value = anon;
-      document.getElementById('sb-remember-local').checked = remember;
 
       if (url && anon) {
         await connectAndSyncSupabase(url, anon, true);
@@ -2076,7 +1870,6 @@ CREATE POLICY "Allow full access to transactions"
         sbModal.classList.remove('hidden');
         sbModal.classList.add('flex');
       };
-      document.getElementById('open-supabase-btn').addEventListener('click', openSbModal);
       document.getElementById('header-db-badge').addEventListener('click', openSbModal);
       document.getElementById('close-supabase-modal').addEventListener('click', () => {
         sbModal.classList.add('hidden');
@@ -2088,23 +1881,17 @@ CREATE POLICY "Allow full access to transactions"
         e.preventDefault();
         const url = document.getElementById('sb-url').value.trim();
         const anonKey = document.getElementById('sb-anon-key').value.trim();
-        const remember = document.getElementById('sb-remember-local').checked;
 
         if (!url || !anonKey) return;
 
         sessionStorage.setItem(KEYS.SB_URL, url);
         sessionStorage.setItem(KEYS.SB_ANON, anonKey);
-        localStorage.setItem(KEYS.SB_REMEMBER, remember ? 'true' : 'false');
 
-        if (remember) {
-          localStorage.setItem(KEYS.SB_URL, url);
-          localStorage.setItem(KEYS.SB_ANON, anonKey);
-        } else {
-          localStorage.removeItem(KEYS.SB_URL);
-          localStorage.removeItem(KEYS.SB_ANON);
+        const ok = await connectAndSyncSupabase(url, anonKey, false);
+        if (ok) {
+          sbModal.classList.add('hidden');
+          sbModal.classList.remove('flex');
         }
-
-        await connectAndSyncSupabase(url, anonKey, false);
       });
 
       // Disconnect Supabase
@@ -2112,126 +1899,13 @@ CREATE POLICY "Allow full access to transactions"
         supabaseClient = null;
         sessionStorage.removeItem(KEYS.SB_URL);
         sessionStorage.removeItem(KEYS.SB_ANON);
-        localStorage.removeItem(KEYS.SB_URL);
-        localStorage.removeItem(KEYS.SB_ANON);
         updateSupabaseBadgeUI(false);
-        showToast('Disconnected from Supabase. Switched to Local Mode.', 'info');
+        showToast('Disconnected from Supabase.', 'info');
       });
 
-      // Push Local Transactions to Supabase
-      document.getElementById('sb-push-local-btn').addEventListener('click', async () => {
-        if (!isSupabaseConnected || !supabaseClient) {
-          showToast('Please connect to Supabase first.', 'error');
-          return;
-        }
-        if (transactions.length === 0) {
-          showToast('No local transactions to upload.', 'info');
-          return;
-        }
-
-        const ok = await customConfirm(
-          'Upload Local Records to Supabase?',
-          `This will insert ${transactions.length} local transactions into your Supabase database.`,
-          'Upload Now'
-        );
-        if (!ok) return;
-
-        const payload = transactions.map((tx) => ({
-          type: tx.type,
-          amount: Number(tx.amount),
-          category: tx.category,
-          date: tx.date,
-          description: tx.description
-        }));
-
-        const { error } = await supabaseClient.from('transactions').insert(payload);
-        if (error) {
-          showToast('Upload error: ' + error.message, 'error');
-          return;
-        }
-
-        const url = document.getElementById('sb-url').value.trim();
-        const anon = document.getElementById('sb-anon-key').value.trim();
-        await connectAndSyncSupabase(url, anon, true);
-        showToast('All local transactions uploaded to Supabase!', 'success');
-      });
-
-      // One-Click Copy SQL Schema (using execCommand fallback for iframe compatibility)
-      document.getElementById('copy-sql-btn').addEventListener('click', () => {
-        const sqlText = document.getElementById('sql-schema-code').textContent;
-        const tempArea = document.createElement('textarea');
-        tempArea.value = sqlText;
-        tempArea.style.position = 'fixed';
-        tempArea.style.opacity = '0';
-        document.body.appendChild(tempArea);
-        tempArea.select();
-        try {
-          document.execCommand('copy');
-          showToast('Supabase SQL Schema copied to clipboard!', 'success');
-        } catch (err) {
-          showToast('Failed to copy SQL. Please select and copy manually.', 'error');
-        }
-        document.body.removeChild(tempArea);
-      });
-
-      // Load Sample Data & Reset All
-      document.getElementById('load-sample-btn').addEventListener('click', async () => {
-        const ok = await customConfirm(
-          'Load Sample Transactions?',
-          'This will add sample transactions using your current categories so you can preview the charts.',
-          'Load Samples'
-        );
-        if (!ok) return;
-
-        const samples = generateSampleTransactions();
-        if (isSupabaseConnected && supabaseClient) {
-          const payload = samples.map(({ type, amount, category, date, description }) => ({
-            type,
-            amount,
-            category,
-            date,
-            description
-          }));
-          const { data, error } = await supabaseClient.from('transactions').insert(payload).select();
-          if (!error && data) {
-            transactions = [...data.map((d) => ({ ...d, amount: Number(d.amount) })), ...transactions];
-          }
-        } else {
-          transactions = [...samples, ...transactions];
-        }
-
-        saveLocalState();
-        refreshDashboard();
-        showToast('Sample transactions loaded!', 'success');
-      });
-
-      document.getElementById('clear-all-btn').addEventListener('click', async () => {
-        const ok = await customConfirm(
-          'Reset All Transactions?',
-          'This will clear all logged transactions so you can start with a clean slate.',
-          'Clear All'
-        );
-        if (!ok) return;
-
-        if (isSupabaseConnected && supabaseClient) {
-          const { error } = await supabaseClient
-            .from('transactions')
-            .delete()
-            .neq('id', '00000000-0000-0000-0000-000000000000');
-          if (error) {
-            showToast('Supabase clear failed: ' + error.message, 'error');
-            return;
-          }
-        }
-
-        transactions = [];
-        saveLocalState();
-        refreshDashboard();
-        showToast('All transactions cleared.', 'info');
-      });
-
-      // Export CSV
+      // Export CSV (Header & History buttons)
       document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
+      document.getElementById('header-export-csv-btn').addEventListener('click', exportToCSV);
 
       // Theme Toggle
       document.getElementById('theme-toggle-btn').addEventListener('click', () => {
