@@ -56,7 +56,7 @@
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.25);F
+      background: rgba(148, 163, 184, 0.25);
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
@@ -138,6 +138,81 @@
   </div>
 
   <!-- ======================================================================= -->
+  <!-- MODAL 1: MANAGE CUSTOM CATEGORIES MODAL                                 -->
+  <!-- ======================================================================= -->
+  <div id="categories-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
+    <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
+            <i data-lucide="tags" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Manage Categories</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Customize your income & expense labels</p>
+          </div>
+        </div>
+        <button id="close-categories-modal" class="touch-target w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4">
+        <!-- Type Switcher Tabs -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
+            <button type="button" id="cat-tab-expense" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition">
+              Expense
+            </button>
+            <button type="button" id="cat-tab-income" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
+              Income
+            </button>
+          </div>
+          <span id="cat-list-count" class="text-xs font-medium text-slate-500 dark:text-slate-400">0 categories</span>
+        </div>
+
+        <!-- Add / Edit Category Form -->
+        <form id="category-form" class="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-slatebase border border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span id="cat-form-title" class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Add New Category</span>
+            <button type="button" id="cat-cancel-edit" class="hidden text-xs font-semibold text-amber-400 hover:underline">Cancel Edit</button>
+          </div>
+          <input type="hidden" id="cat-edit-id" value="" />
+          <input type="hidden" id="cat-type" value="expense" />
+
+          <div class="flex items-center gap-2">
+            <input
+              type="color"
+              id="cat-color"
+              value="#f43f5e"
+              title="Pick category color"
+              class="w-11 h-11 rounded-xl bg-transparent border border-slate-300 dark:border-slate-700 cursor-pointer shrink-0 p-1"
+            />
+            <input
+              type="text"
+              id="cat-name"
+              required
+              maxlength="40"
+              placeholder="Category name (e.g., Coffee, Rent)"
+              class="touch-target flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-carddark border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button type="submit" class="touch-target px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 shrink-0 transition">
+              <span id="cat-submit-label">Save Category</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Categories List -->
+        <div id="custom-categories-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
   <!-- MODAL 2: DIRECT SUPABASE CONNECTION MODAL                               -->
   <!-- ======================================================================= -->
   <div id="supabase-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
@@ -188,13 +263,13 @@
 
           <div>
             <label for="sb-anon-key" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-              Supabase Anon Public Key
+              Supabase Public / Anon Key
             </label>
             <input
               type="password"
               id="sb-anon-key"
               required
-              placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              placeholder="sb_publishable_... or eyJhbGci..."
               class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slatebase border border-slate-300 dark:border-slate-700 text-sm font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
@@ -223,9 +298,9 @@
             <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate">
               PesoFlow
             </h1>
-            <button id="header-db-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0" title="Click to connect Supabase">
+            <button id="header-db-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 hover:opacity-90 transition shrink-0" title="Click to manage Supabase connection">
               <span id="header-db-dot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span id="header-db-text">Connect Supabase</span>
+              <span id="header-db-text">Connecting...</span>
             </button>
           </div>
           <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
@@ -262,9 +337,7 @@
   <!-- ======================================================================= -->
   <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
 
-    <!-- ===================================================================== -->
-    <!-- SECTION 1: SUMMARY KPI CARDS (2x2 ON MOBILE, 4 COLS ON DESKTOP)       -->
-    <!-- ===================================================================== -->
+    <!-- SECTION 1: SUMMARY KPI CARDS -->
     <section id="section-overview" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <!-- Net Balance -->
       <div class="glass-card rounded-2xl p-3.5 sm:p-5">
@@ -331,11 +404,9 @@
       </div>
     </section>
 
-    <!-- ===================================================================== -->
-    <!-- SECTION 2: INTERACTIVE ANALYTICS CHARTS (PIE + BAR)                   -->
-    <!-- ===================================================================== -->
+    <!-- SECTION 2: INTERACTIVE ANALYTICS CHARTS (PIE + BAR) -->
     <section id="section-charts" class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
-      <!-- Category Breakdown Doughnut Chart (5 cols) -->
+      <!-- Category Breakdown Doughnut Chart -->
       <div class="lg:col-span-5 glass-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
@@ -346,7 +417,6 @@
               Percentage & peso share per category
             </p>
           </div>
-          <!-- Toggle Expense vs Income Breakdown -->
           <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
             <button type="button" id="pie-mode-expense" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition">
               Expenses
@@ -357,7 +427,6 @@
           </div>
         </div>
 
-        <!-- Responsive Chart Canvas -->
         <div class="relative w-full h-60 sm:h-64 flex items-center justify-center">
           <canvas id="categoryPieChart"></canvas>
           <div id="pie-empty-state" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-4">
@@ -366,17 +435,15 @@
           </div>
         </div>
 
-        <!-- Mobile-Friendly Custom Legend Pills -->
         <div id="pie-custom-legend" class="mt-4 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto"></div>
 
-        <!-- Top Category Footer -->
         <div class="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs">
           <span class="text-slate-500 dark:text-slate-400 shrink-0">Top Category:</span>
           <span id="top-category-label" class="font-bold font-mono text-slate-800 dark:text-slate-200 truncate">—</span>
         </div>
       </div>
 
-      <!-- Cash Flow Bar Chart (7 cols) -->
+      <!-- Cash Flow Bar Chart -->
       <div class="lg:col-span-7 glass-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
@@ -387,7 +454,6 @@
               Daily & monthly comparison (₱)
             </p>
           </div>
-          <!-- Range Selector: 7D, 14D, 30D, Monthly -->
           <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
             <button type="button" data-bar-range="7" class="bar-range-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-white transition">
               7D
@@ -404,7 +470,6 @@
           </div>
         </div>
 
-        <!-- Bar Chart Canvas -->
         <div class="relative w-full h-64 sm:h-72 flex items-center justify-center my-auto">
           <canvas id="comparisonBarChart"></canvas>
           <div id="bar-empty-state" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-4">
@@ -424,12 +489,10 @@
       </div>
     </section>
 
-    <!-- ===================================================================== -->
-    <!-- SECTION 3: ADD TRANSACTION FORM & TRANSACTION HISTORY                 -->
-    <!-- ===================================================================== -->
+    <!-- SECTION 3: ADD TRANSACTION FORM & TRANSACTION HISTORY -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
 
-      <!-- Left: Add / Edit Transaction Form (4 cols) -->
+      <!-- Left: Add / Edit Transaction Form -->
       <div id="section-add-form" class="lg:col-span-4 glass-card rounded-2xl p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 id="form-heading" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -482,7 +545,7 @@
             </div>
           </div>
 
-          <!-- Custom Category Selector + Quick "+ Add Category" Button -->
+          <!-- Custom Category Selector -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label for="tx-category" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -498,7 +561,6 @@
               required
               class="touch-target w-full px-3.5 py-2.5 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             >
-              <!-- Populated dynamically -->
             </select>
           </div>
 
@@ -542,7 +604,7 @@
         </form>
       </div>
 
-      <!-- Right: Transaction History (8 cols) -->
+      <!-- Right: Transaction History -->
       <div id="section-history" class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -562,7 +624,6 @@
 
         <!-- Responsive Filters Bar -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
-          <!-- Search Keyword -->
           <div class="relative">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
             <input
@@ -573,19 +634,16 @@
             />
           </div>
 
-          <!-- Type Filter -->
           <select id="filter-type" class="touch-target w-full px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="all">All Types</option>
             <option value="expense">Expenses Only</option>
             <option value="income">Income Only</option>
           </select>
 
-          <!-- Category Filter -->
           <select id="filter-category" class="touch-target w-full px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="all">All Categories</option>
           </select>
 
-          <!-- Month Filter + Reset -->
           <div class="flex items-center gap-1.5">
             <input
               type="month"
@@ -599,12 +657,10 @@
           </div>
         </div>
 
-        <!-- MOBILE CARD LIST VIEW (< md screens) -->
-        <div id="mobile-transaction-list" class="md:hidden space-y-2.5">
-          <!-- Mobile cards rendered dynamically -->
-        </div>
+        <!-- MOBILE CARD LIST VIEW -->
+        <div id="mobile-transaction-list" class="md:hidden space-y-2.5"></div>
 
-        <!-- DESKTOP TABLE VIEW (>= md screens) -->
+        <!-- DESKTOP TABLE VIEW -->
         <div class="hidden md:block overflow-x-auto rounded-xl border border-slate-200/80 dark:border-slate-800/80">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -616,9 +672,7 @@
                 <th class="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody id="transaction-tbody" class="divide-y divide-slate-200/70 dark:divide-slate-800/70 text-sm">
-              <!-- Desktop table rows rendered dynamically -->
-            </tbody>
+            <tbody id="transaction-tbody" class="divide-y divide-slate-200/70 dark:divide-slate-800/70 text-sm"></tbody>
           </table>
         </div>
 
@@ -634,9 +688,7 @@
     </section>
   </main>
 
-  <!-- ======================================================================= -->
-  <!-- STICKY MOBILE BOTTOM NAVIGATION BAR (< lg screens)                      -->
-  <!-- ======================================================================= -->
+  <!-- STICKY MOBILE BOTTOM NAVIGATION BAR -->
   <nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slatebase/95 backdrop-blur-xl px-2 py-1.5">
     <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
       <button type="button" onclick="scrollToSection('section-overview')" class="touch-target flex flex-col items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-400 active:bg-slate-800/60 transition">
@@ -661,13 +713,11 @@
   <script>
     /**
      * =========================================================================
-     * DIRECT SUPABASE CONFIGURATION
-     * Paste your Supabase Project URL and Anon Public Key below to auto-connect
-     * immediately on page load with zero clicks, or connect via the header badge.
+     * DIRECT SUPABASE CONFIGURATION (CONNECTED TO YOUR PROJECT)
      * =========================================================================
      */
-    const SUPABASE_URL = '';
-    const SUPABASE_ANON_KEY = '';
+    const SUPABASE_URL = 'https://awpqyxdjeidrkmflwdjh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ZiGxQQIy7ZvZYHQVpvYlkg_3VX9Jwf-';
 
     // =========================================================================
     // 1. STATE & STORAGE KEYS
@@ -695,8 +745,8 @@
     let supabaseClient = null;
     let isSupabaseConnected = false;
 
-    let pieChartMode = 'expense'; // 'expense' | 'income'
-    let barChartRange = '14';     // '7' | '14' | '30' | 'monthly'
+    let pieChartMode = 'expense';
+    let barChartRange = '14';
     let categoryModalTab = 'expense';
 
     let pieChartInstance = null;
@@ -802,7 +852,7 @@
     }
 
     // =========================================================================
-    // 3. SESSION STORAGE STATE (CLEAN EMPTY INITIAL STATE)
+    // 3. LOCAL CACHE STATE
     // =========================================================================
     function saveLocalState() {
       sessionStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
@@ -834,7 +884,6 @@
         } catch (e) {}
       }
 
-      // Start with a clean empty transaction list (no sample data)
       transactions = [];
       saveLocalState();
     }
@@ -867,7 +916,7 @@
 
         modalStatus.className = 'p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3';
         modalStatusText.className = 'text-xs sm:text-sm text-amber-700 dark:text-amber-300';
-        modalStatusText.textContent = 'Enter your Supabase URL and Anon Key to sync.';
+        modalStatusText.textContent = 'Enter your Supabase URL and Public Key to sync.';
         disconnectBtn.classList.add('hidden');
       }
     }
@@ -880,7 +929,6 @@
 
         const client = window.supabase.createClient(url, anonKey);
 
-        // Fetch categories & transactions directly from Supabase tables
         const [catRes, txRes] = await Promise.all([
           client.from('categories').select('*').order('created_at', { ascending: true }),
           client.from('transactions').select('*').order('date', { ascending: false })
@@ -892,7 +940,7 @@
         supabaseClient = client;
         updateSupabaseBadgeUI(true, url);
 
-        // If Supabase categories table is empty, seed starter categories once
+        // Seed starter categories once if Supabase table is empty
         if (catRes.data.length === 0 && categories.length > 0) {
           const seedPayload = categories.map((c) => ({
             name: c.name,
@@ -910,7 +958,7 @@
           categories = catRes.data;
         }
 
-        // If user already added local transactions before connecting, push them up
+        // Sync transactions
         if (txRes.data.length === 0 && transactions.length > 0) {
           const pushPayload = transactions.map((tx) => ({
             type: tx.type,
@@ -944,22 +992,22 @@
         console.error('Supabase connection error:', err);
         supabaseClient = null;
         updateSupabaseBadgeUI(false);
-        if (!silent) {
-          showToast('Supabase Error: ' + (err.message || 'Check your Project URL, Anon Key, or tables.'), 'error');
-        }
+        showToast('Supabase Error: ' + (err.message || 'Check your tables or RLS policies in Supabase.'), 'error');
         return false;
       }
     }
 
     async function tryAutoConnectSupabase() {
-      const url = SUPABASE_URL.trim() || sessionStorage.getItem(KEYS.SB_URL) || '';
-      const anon = SUPABASE_ANON_KEY.trim() || sessionStorage.getItem(KEYS.SB_ANON) || '';
+      const url = SUPABASE_URL.trim() || localStorage.getItem(KEYS.SB_URL) || '';
+      const anon = SUPABASE_ANON_KEY.trim() || localStorage.getItem(KEYS.SB_ANON) || '';
 
       if (url) document.getElementById('sb-url').value = url;
       if (anon) document.getElementById('sb-anon-key').value = anon;
 
       if (url && anon) {
         await connectAndSyncSupabase(url, anon, true);
+      } else {
+        updateSupabaseBadgeUI(false);
       }
     }
 
@@ -983,7 +1031,6 @@
         }
       }
 
-      // Populate Filter Dropdown
       const filterCatSelect = document.getElementById('filter-category');
       const prevFilter = filterCatSelect.value;
       const expList = categories.filter((c) => c.type === 'expense');
@@ -1264,7 +1311,6 @@
       const topPct = grandTotal > 0 ? ((topVal / grandTotal) * 100).toFixed(1) : 0;
       topCatLabel.textContent = `${topCat} (${topPct}%)`;
 
-      // Render mobile-friendly legend pills
       legendEl.innerHTML = sortedEntries
         .map(([cat, val]) => {
           const color = getCategoryColor(cat);
@@ -1431,7 +1477,7 @@
     }
 
     // =========================================================================
-    // 8. RENDER TRANSACTION HISTORY (MOBILE CARDS + DESKTOP TABLE)
+    // 8. RENDER TRANSACTION HISTORY
     // =========================================================================
     function renderTransactionHistory(filteredList) {
       const mobileListEl = document.getElementById('mobile-transaction-list');
@@ -1450,7 +1496,6 @@
 
       emptyEl.classList.add('hidden');
 
-      // 1. Mobile Card View (< md)
       mobileListEl.innerHTML = filteredList
         .map((tx) => {
           const isIncome = tx.type === 'income';
@@ -1488,7 +1533,6 @@
         })
         .join('');
 
-      // 2. Desktop Table View (>= md)
       tbodyEl.innerHTML = filteredList
         .map((tx) => {
           const isIncome = tx.type === 'income';
@@ -1623,7 +1667,6 @@
     // 10. EVENT LISTENERS & INITIALIZATION
     // =========================================================================
     document.addEventListener('DOMContentLoaded', async () => {
-      // Theme initialization
       const savedTheme = localStorage.getItem(KEYS.THEME);
       if (savedTheme === 'light') {
         document.documentElement.classList.remove('dark');
@@ -1631,14 +1674,13 @@
         document.documentElement.classList.add('dark');
       }
 
-      // Load local categories & transactions first for instant render
       loadLocalState();
       document.getElementById('tx-date').value = getTodayISO();
       setTransactionTypeUI('expense');
       refreshAllUI();
       lucide.createIcons();
 
-      // Attempt auto-connect to Supabase if credentials exist in session/local storage
+      // Auto-connect to Supabase
       await tryAutoConnectSupabase();
 
       // Form Type Buttons
@@ -1646,7 +1688,7 @@
       document.getElementById('type-btn-income').addEventListener('click', () => setTransactionTypeUI('income'));
       document.getElementById('cancel-edit-btn').addEventListener('click', resetEntryForm);
 
-      // Transaction Form Submit (Create or Update)
+      // Transaction Form Submit
       document.getElementById('transaction-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const editId = document.getElementById('edit-id').value;
@@ -1662,7 +1704,6 @@
         }
 
         if (editId) {
-          // Update existing
           if (isSupabaseConnected && supabaseClient) {
             const { error } = await supabaseClient
               .from('transactions')
@@ -1680,7 +1721,6 @@
           }
           showToast('Transaction updated!', 'success');
         } else {
-          // Insert new
           let newTx = {
             id: crypto.randomUUID(),
             type,
@@ -1714,7 +1754,7 @@
         refreshDashboard();
       });
 
-      // Pie Chart Mode Toggle (Expense vs Income)
+      // Pie Chart Mode Toggle
       document.getElementById('pie-mode-expense').addEventListener('click', () => {
         pieChartMode = 'expense';
         document.getElementById('pie-chart-title').textContent = 'Expenses by Category';
@@ -1794,7 +1834,6 @@
 
         if (!name) return;
 
-        // Prevent duplicate name in same type
         const duplicate = categories.find(
           (c) => c.type === type && c.name.toLowerCase() === name.toLowerCase() && c.id !== editId
         );
@@ -1817,7 +1856,6 @@
           }
 
           if (oldCat) {
-            // Update transactions referencing old category name
             transactions.forEach((tx) => {
               if (tx.category === oldCat.name && tx.type === oldCat.type) {
                 tx.category = name;
@@ -1858,7 +1896,6 @@
         resetCategoryForm();
         refreshAllUI();
 
-        // Automatically select the newly created category in the transaction form if types match
         if (document.getElementById('tx-type').value === type) {
           document.getElementById('tx-category').value = name;
         }
@@ -1884,8 +1921,8 @@
 
         if (!url || !anonKey) return;
 
-        sessionStorage.setItem(KEYS.SB_URL, url);
-        sessionStorage.setItem(KEYS.SB_ANON, anonKey);
+        localStorage.setItem(KEYS.SB_URL, url);
+        localStorage.setItem(KEYS.SB_ANON, anonKey);
 
         const ok = await connectAndSyncSupabase(url, anonKey, false);
         if (ok) {
@@ -1897,13 +1934,13 @@
       // Disconnect Supabase
       document.getElementById('sb-disconnect-btn').addEventListener('click', () => {
         supabaseClient = null;
-        sessionStorage.removeItem(KEYS.SB_URL);
-        sessionStorage.removeItem(KEYS.SB_ANON);
+        localStorage.removeItem(KEYS.SB_URL);
+        localStorage.removeItem(KEYS.SB_ANON);
         updateSupabaseBadgeUI(false);
         showToast('Disconnected from Supabase.', 'info');
       });
 
-      // Export CSV (Header & History buttons)
+      // Export CSV
       document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
       document.getElementById('header-export-csv-btn').addEventListener('click', exportToCSV);
 
