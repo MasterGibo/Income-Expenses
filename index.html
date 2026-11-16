@@ -41,13 +41,11 @@
   </script>
 
   <style>
-    /* Prevent horizontal overflow on small mobile devices */
     html, body {
       max-width: 100%;
       overflow-x: hidden;
     }
 
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -63,7 +61,6 @@
       background: rgba(148, 163, 184, 0.45);
     }
 
-    /* Glassmorphic cards */
     .glass-card {
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -80,7 +77,6 @@
       box-shadow: 0 10px 25px -10px rgba(15, 23, 42, 0.08);
     }
 
-    /* Ambient background */
     .dark body {
       background-color: #0b1120;
       background-image:
@@ -95,7 +91,6 @@
         radial-gradient(circle at 88% 15%, rgba(99, 102, 241, 0.08), transparent 35%);
     }
 
-    /* Dark mode native date/month icon */
     .dark input[type="date"]::-webkit-calendar-picker-indicator,
     .dark input[type="month"]::-webkit-calendar-picker-indicator {
       filter: invert(1);
@@ -103,7 +98,6 @@
       cursor: pointer;
     }
 
-    /* Minimum 44px touch target helper */
     .touch-target {
       min-height: 44px;
     }
@@ -113,6 +107,9 @@
 
   <!-- Toast Notification Stack -->
   <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto z-[70] flex flex-col gap-2 pointer-events-none sm:max-w-sm"></div>
+
+  <!-- Hidden File Input for JSON Import -->
+  <input type="file" id="import-json-input" accept=".json,application/json" class="hidden" />
 
   <!-- Custom Confirmation Modal -->
   <div id="confirm-modal" class="fixed inset-0 z-[65] hidden items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4">
@@ -137,12 +134,9 @@
     </div>
   </div>
 
-  <!-- ======================================================================= -->
-  <!-- MODAL 1: MANAGE CUSTOM CATEGORIES MODAL                                 -->
-  <!-- ======================================================================= -->
+  <!-- MODAL 1: MANAGE CUSTOM CATEGORIES MODAL -->
   <div id="categories-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
     <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
-      <!-- Modal Header -->
       <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center">
@@ -158,9 +152,7 @@
         </button>
       </div>
 
-      <!-- Modal Body -->
       <div class="p-5 overflow-y-auto space-y-4">
-        <!-- Type Switcher Tabs -->
         <div class="flex items-center justify-between gap-2">
           <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slatebase border border-slate-300/60 dark:border-slate-800">
             <button type="button" id="cat-tab-expense" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-500 text-white shadow transition">
@@ -173,7 +165,6 @@
           <span id="cat-list-count" class="text-xs font-medium text-slate-500 dark:text-slate-400">0 categories</span>
         </div>
 
-        <!-- Add / Edit Category Form -->
         <form id="category-form" class="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-slatebase border border-slate-200 dark:border-slate-800 space-y-3">
           <div class="flex items-center justify-between">
             <span id="cat-form-title" class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Add New Category</span>
@@ -204,20 +195,14 @@
           </div>
         </form>
 
-        <!-- Categories List -->
-        <div id="custom-categories-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-          <!-- Populated dynamically -->
-        </div>
+        <div id="custom-categories-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
       </div>
     </div>
   </div>
 
-  <!-- ======================================================================= -->
-  <!-- MODAL 2: DIRECT SUPABASE CONNECTION MODAL                               -->
-  <!-- ======================================================================= -->
+  <!-- MODAL 2: DIRECT SUPABASE CONNECTION MODAL -->
   <div id="supabase-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-950/75 backdrop-blur-sm p-0 sm:p-4">
     <div class="glass-card rounded-t-3xl sm:rounded-2xl max-w-md w-full flex flex-col border border-slate-700/70 shadow-2xl overflow-hidden">
-      <!-- Modal Header -->
       <div class="px-5 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
@@ -233,9 +218,7 @@
         </button>
       </div>
 
-      <!-- Modal Body -->
       <div class="p-5 overflow-y-auto space-y-4">
-        <!-- Connection Status Banner -->
         <div id="sb-modal-status" class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between gap-3">
           <div class="flex items-center gap-2.5 text-xs sm:text-sm text-amber-300">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
@@ -246,7 +229,6 @@
           </button>
         </div>
 
-        <!-- Supabase Credentials Form -->
         <form id="supabase-config-form" class="space-y-3.5">
           <div>
             <label for="sb-url" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
@@ -283,12 +265,9 @@
     </div>
   </div>
 
-  <!-- ======================================================================= -->
-  <!-- TOP NAVIGATION HEADER (CLEAN & MOBILE-FIRST)                            -->
-  <!-- ======================================================================= -->
+  <!-- TOP NAVIGATION HEADER -->
   <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slatebase/85 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
-      <!-- Brand Identity & Direct Supabase Status Pill -->
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-emerald-500/20 shrink-0">
           ₱
@@ -309,21 +288,17 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons -->
       <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        <!-- Manage Categories Button -->
         <button id="open-categories-btn" class="touch-target px-3 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Customize Income & Expense Categories">
           <i data-lucide="tags" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Categories</span>
         </button>
 
-        <!-- Export CSV Button -->
         <button id="header-export-csv-btn" class="touch-target px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition" title="Export Transactions to CSV">
           <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Export CSV</span>
         </button>
 
-        <!-- Theme Toggle -->
         <button id="theme-toggle-btn" class="touch-target w-10 h-10 rounded-xl bg-slate-100 dark:bg-carddark hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center transition" aria-label="Toggle Color Theme">
           <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
           <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
@@ -332,14 +307,11 @@
     </div>
   </header>
 
-  <!-- ======================================================================= -->
-  <!-- MAIN DASHBOARD CONTENT                                                  -->
-  <!-- ======================================================================= -->
+  <!-- MAIN DASHBOARD CONTENT -->
   <main class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 sm:space-y-6">
 
     <!-- SECTION 1: SUMMARY KPI CARDS -->
     <section id="section-overview" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <!-- Net Balance -->
       <div class="glass-card rounded-2xl p-3.5 sm:p-5">
         <div class="flex items-center justify-between gap-2 mb-2">
           <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Balance</span>
@@ -355,7 +327,6 @@
         </p>
       </div>
 
-      <!-- Total Income -->
       <div class="glass-card rounded-2xl p-3.5 sm:p-5">
         <div class="flex items-center justify-between gap-2 mb-2">
           <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Income</span>
@@ -371,7 +342,6 @@
         </p>
       </div>
 
-      <!-- Total Expenses -->
       <div class="glass-card rounded-2xl p-3.5 sm:p-5">
         <div class="flex items-center justify-between gap-2 mb-2">
           <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Expenses</span>
@@ -387,7 +357,6 @@
         </p>
       </div>
 
-      <!-- Today's Expenses -->
       <div class="glass-card rounded-2xl p-3.5 sm:p-5">
         <div class="flex items-center justify-between gap-2 mb-2">
           <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Today's Spend</span>
@@ -404,9 +373,8 @@
       </div>
     </section>
 
-    <!-- SECTION 2: INTERACTIVE ANALYTICS CHARTS (PIE + BAR) -->
+    <!-- SECTION 2: INTERACTIVE ANALYTICS CHARTS -->
     <section id="section-charts" class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
-      <!-- Category Breakdown Doughnut Chart -->
       <div class="lg:col-span-5 glass-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
@@ -443,7 +411,6 @@
         </div>
       </div>
 
-      <!-- Cash Flow Bar Chart -->
       <div class="lg:col-span-7 glass-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
@@ -507,7 +474,6 @@
         <form id="transaction-form" class="space-y-4">
           <input type="hidden" id="edit-id" value="" />
 
-          <!-- Transaction Type Toggle -->
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
               Transaction Type
@@ -525,7 +491,6 @@
             <input type="hidden" id="tx-type" value="expense" />
           </div>
 
-          <!-- Amount Input (₱) -->
           <div>
             <label for="tx-amount" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
               Amount (₱)
@@ -545,7 +510,6 @@
             </div>
           </div>
 
-          <!-- Custom Category Selector -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label for="tx-category" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -564,7 +528,6 @@
             </select>
           </div>
 
-          <!-- Date Input -->
           <div>
             <label for="tx-date" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
               Date
@@ -577,7 +540,6 @@
             />
           </div>
 
-          <!-- Description / Notes -->
           <div>
             <label for="tx-desc" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
               Description / Notes
@@ -592,7 +554,6 @@
             />
           </div>
 
-          <!-- Submit Button -->
           <button
             type="submit"
             id="submit-tx-btn"
@@ -616,10 +577,19 @@
             </p>
           </div>
 
-          <button id="export-csv-btn" class="touch-target px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/25 flex items-center gap-1.5 transition">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-            Export CSV
-          </button>
+          <div class="flex items-center gap-2">
+            <!-- Import JSON Button -->
+            <button id="import-json-btn" class="touch-target px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/25 border border-indigo-500/25 flex items-center gap-1.5 transition" title="Import old website JSON export">
+              <i data-lucide="upload" class="w-4 h-4"></i>
+              Import JSON
+            </button>
+
+            <!-- Export CSV Button -->
+            <button id="export-csv-btn" class="touch-target px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/25 flex items-center gap-1.5 transition">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              Export CSV
+            </button>
+          </div>
         </div>
 
         <!-- Responsive Filters Bar -->
@@ -682,7 +652,7 @@
             <i data-lucide="receipt" class="w-6 h-6"></i>
           </div>
           <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">No transactions found</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add a new income or expense entry, or clear active filters.</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add a new entry, or click <strong>Import JSON</strong> to transfer your old data.</p>
         </div>
       </div>
     </section>
@@ -713,7 +683,7 @@
   <script>
     /**
      * =========================================================================
-     * DIRECT SUPABASE CONFIGURATION (CONNECTED TO YOUR PROJECT)
+     * DIRECT SUPABASE CONFIGURATION
      * =========================================================================
      */
     const SUPABASE_URL = 'https://awpqyxdjeidrkmflwdjh.supabase.co';
@@ -739,6 +709,8 @@
       { id: 'cat_exp_3', name: 'Bills & Utilities', type: 'expense', color: '#eab308' },
       { id: 'cat_exp_4', name: 'Groceries', type: 'expense', color: '#22c55e' }
     ];
+
+    const AUTO_PALETTE = ['#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#f59e0b', '#84cc16', '#3b82f6', '#e11d48'];
 
     let categories = [];
     let transactions = [];
@@ -768,6 +740,21 @@
       const offset = now.getTimezoneOffset();
       const local = new Date(now.getTime() - offset * 60 * 1000);
       return local.toISOString().split('T')[0];
+    }
+
+    function normalizeDateToISO(rawDate) {
+      if (!rawDate) return getTodayISO();
+      const str = String(rawDate).trim();
+      if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+        return str.slice(0, 10);
+      }
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        const offset = parsed.getTimezoneOffset();
+        const local = new Date(parsed.getTime() - offset * 60 * 1000);
+        return local.toISOString().split('T')[0];
+      }
+      return getTodayISO();
     }
 
     function formatDisplayDate(isoDate) {
@@ -815,7 +802,7 @@
       setTimeout(() => {
         toast.classList.add('opacity-0', '-translate-y-2');
         setTimeout(() => toast.remove(), 300);
-      }, 3200);
+      }, 3600);
     }
 
     function customConfirm(title, message, okText = 'Confirm') {
@@ -940,7 +927,6 @@
         supabaseClient = client;
         updateSupabaseBadgeUI(true, url);
 
-        // Seed starter categories once if Supabase table is empty
         if (catRes.data.length === 0 && categories.length > 0) {
           const seedPayload = categories.map((c) => ({
             name: c.name,
@@ -958,7 +944,6 @@
           categories = catRes.data;
         }
 
-        // Sync transactions
         if (txRes.data.length === 0 && transactions.length > 0) {
           const pushPayload = transactions.map((tx) => ({
             type: tx.type,
@@ -1012,7 +997,159 @@
     }
 
     // =========================================================================
-    // 5. CUSTOM CATEGORIES MANAGEMENT (ADD, EDIT, DELETE)
+    // 5. IMPORT JSON FROM OLD WEBSITE -> SUPABASE
+    // =========================================================================
+    async function importFromJSONFile(file) {
+      if (!file) return;
+
+      try {
+        const rawText = await file.text();
+        const parsed = JSON.parse(rawText);
+
+        let rawCategories = [];
+        let rawTransactions = [];
+
+        if (Array.isArray(parsed)) {
+          rawTransactions = parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.categories)) rawCategories = parsed.categories;
+          rawTransactions =
+            parsed.transactions ||
+            parsed.data ||
+            parsed.records ||
+            parsed.entries ||
+            parsed.items ||
+            [];
+        }
+
+        if (!Array.isArray(rawTransactions) || rawTransactions.length === 0) {
+          showToast('Walang nahanap na valid transaction array sa JSON file.', 'error');
+          return;
+        }
+
+        // Normalize transactions from old JSON structure
+        const normalizedTx = [];
+        rawTransactions.forEach((item) => {
+          if (!item || typeof item !== 'object') return;
+
+          const rawNum = Number(item.amount ?? item.value ?? item.price ?? item.cost ?? item.total ?? 0);
+          const amount = Math.abs(rawNum);
+          if (!amount || isNaN(amount) || amount <= 0) return;
+
+          let type = String(item.type ?? item.transaction_type ?? item.kind ?? '').toLowerCase().trim();
+          if (type !== 'income' && type !== 'expense') {
+            type = rawNum < 0 ? 'expense' : 'expense';
+          }
+
+          const category = String(item.category ?? item.cat ?? item.group ?? 'General').trim() || 'General';
+          const date = normalizeDateToISO(item.date ?? item.transaction_date ?? item.created_at ?? item.timestamp);
+          const description =
+            String(
+              item.description ??
+              item.desc ??
+              item.note ??
+              item.notes ??
+              item.title ??
+              item.name ??
+              'Imported Entry'
+            )
+              .trim()
+              .slice(0, 100) || 'Imported Entry';
+
+          normalizedTx.push({ type, amount, category, date, description });
+        });
+
+        if (normalizedTx.length === 0) {
+          showToast('Walang valid entries na may amount sa JSON file.', 'error');
+          return;
+        }
+
+        const confirmed = await customConfirm(
+          'Import JSON Data?',
+          `Nakita ang ${normalizedTx.length} transactions mula sa "${file.name}". I-transfer na ba ito sa bagong website${isSupabaseConnected ? ' at i-save sa Supabase' : ''}?`,
+          'Import Now'
+        );
+        if (!confirmed) return;
+
+        // 1. Collect & create any missing categories
+        const newCategoriesToCreate = [];
+        const seenCatKeys = new Set(categories.map((c) => `${c.type}:${c.name.toLowerCase()}`));
+
+        rawCategories.forEach((rc, idx) => {
+          if (!rc || !rc.name) return;
+          const cType = String(rc.type || 'expense').toLowerCase() === 'income' ? 'income' : 'expense';
+          const cName = String(rc.name).trim();
+          const key = `${cType}:${cName.toLowerCase()}`;
+          if (!seenCatKeys.has(key)) {
+            seenCatKeys.add(key);
+            newCategoriesToCreate.push({
+              name: cName,
+              type: cType,
+              color: rc.color || AUTO_PALETTE[idx % AUTO_PALETTE.length]
+            });
+          }
+        });
+
+        normalizedTx.forEach((tx, idx) => {
+          const key = `${tx.type}:${tx.category.toLowerCase()}`;
+          if (!seenCatKeys.has(key)) {
+            seenCatKeys.add(key);
+            newCategoriesToCreate.push({
+              name: tx.category,
+              type: tx.type,
+              color: AUTO_PALETTE[idx % AUTO_PALETTE.length]
+            });
+          }
+        });
+
+        if (newCategoriesToCreate.length > 0) {
+          if (isSupabaseConnected && supabaseClient) {
+            const { data: insertedCats, error: catErr } = await supabaseClient
+              .from('categories')
+              .insert(newCategoriesToCreate)
+              .select();
+            if (!catErr && insertedCats) {
+              categories.push(...insertedCats);
+            } else {
+              categories.push(...newCategoriesToCreate.map((c) => ({ id: crypto.randomUUID(), ...c })));
+            }
+          } else {
+            categories.push(...newCategoriesToCreate.map((c) => ({ id: crypto.randomUUID(), ...c })));
+          }
+        }
+
+        // 2. Insert transactions into Supabase (or local state)
+        if (isSupabaseConnected && supabaseClient) {
+          const { data: insertedTx, error: txErr } = await supabaseClient
+            .from('transactions')
+            .insert(normalizedTx)
+            .select();
+
+          if (txErr) {
+            showToast('Supabase import error: ' + txErr.message, 'error');
+            return;
+          }
+
+          if (insertedTx) {
+            const formatted = insertedTx.map((row) => ({ ...row, amount: Number(row.amount) }));
+            transactions = [...formatted, ...transactions];
+          }
+        } else {
+          const localRows = normalizedTx.map((tx) => ({ id: crypto.randomUUID(), ...tx }));
+          transactions = [...localRows, ...transactions];
+        }
+
+        saveLocalState();
+        refreshAllUI();
+        showToast(`Na-transfer na ang ${normalizedTx.length} transactions!`, 'success');
+      } catch (err) {
+        console.error('JSON Import error:', err);
+        showToast('Invalid JSON file: ' + err.message, 'error');
+      }
+    }
+
+    // =========================================================================
+    // 6. CUSTOM CATEGORIES MANAGEMENT
     // =========================================================================
     function renderCategoryDropdowns() {
       const currentType = document.getElementById('tx-type').value || 'expense';
@@ -1155,7 +1292,7 @@
     };
 
     // =========================================================================
-    // 6. TRANSACTION FORM & KPI CALCULATIONS
+    // 7. TRANSACTION FORM & KPI CALCULATIONS
     // =========================================================================
     function setTransactionTypeUI(type) {
       document.getElementById('tx-type').value = type;
@@ -1261,7 +1398,7 @@
     }
 
     // =========================================================================
-    // 7. CHARTS (CHART.JS DOUGHNUT & BAR)
+    // 8. CHARTS (CHART.JS DOUGHNUT & BAR)
     // =========================================================================
     function getChartTextColor() {
       return document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#334155';
@@ -1477,7 +1614,7 @@
     }
 
     // =========================================================================
-    // 8. RENDER TRANSACTION HISTORY
+    // 9. RENDER TRANSACTION HISTORY
     // =========================================================================
     function renderTransactionHistory(filteredList) {
       const mobileListEl = document.getElementById('mobile-transaction-list');
@@ -1591,7 +1728,7 @@
     }
 
     // =========================================================================
-    // 9. TRANSACTION CRUD ACTIONS
+    // 10. TRANSACTION CRUD & EXPORT ACTIONS
     // =========================================================================
     window.editTransaction = function (id) {
       const tx = transactions.find((item) => item.id === id);
@@ -1664,7 +1801,7 @@
     }
 
     // =========================================================================
-    // 10. EVENT LISTENERS & INITIALIZATION
+    // 11. EVENT LISTENERS & INITIALIZATION
     // =========================================================================
     document.addEventListener('DOMContentLoaded', async () => {
       const savedTheme = localStorage.getItem(KEYS.THEME);
@@ -1682,6 +1819,19 @@
 
       // Auto-connect to Supabase
       await tryAutoConnectSupabase();
+
+      // Import JSON listeners
+      const importInput = document.getElementById('import-json-input');
+      document.getElementById('import-json-btn').addEventListener('click', () => {
+        importInput.click();
+      });
+      importInput.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          await importFromJSONFile(file);
+          importInput.value = '';
+        }
+      });
 
       // Form Type Buttons
       document.getElementById('type-btn-expense').addEventListener('click', () => setTransactionTypeUI('expense'));
