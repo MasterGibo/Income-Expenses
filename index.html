@@ -572,7 +572,7 @@
             <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               Transaction History
             </h2>
-            <div class="flex items-center gap-2 mt-0.5">
+            <div class="flex flex-wrap items-center gap-2 mt-0.5">
               <p id="history-count-label" class="text-xs text-slate-500 dark:text-slate-400">
                 Showing 0 transactions
               </p>
@@ -626,15 +626,22 @@
             <option value="all">All Categories</option>
           </select>
 
-          <div class="flex items-center gap-1.5">
+          <!-- Per-Month Navigation & Reset -->
+          <div class="flex items-center gap-1">
+            <button type="button" id="prev-month-btn" title="Previous Month" class="touch-target w-8 h-11 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
             <input
               type="month"
               id="filter-month"
               aria-label="Filter by Month"
-              class="touch-target w-full px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="touch-target min-w-0 flex-1 px-2.5 py-2 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <button id="reset-filters-btn" title="Reset All Filters" class="touch-target w-11 h-11 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0 transition">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <button type="button" id="next-month-btn" title="Next Month" class="touch-target w-8 h-11 rounded-xl bg-slate-100/90 dark:bg-slatebase border border-slate-300 dark:border-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <button type="button" id="reset-filters-btn" title="Reset to Current Month" class="touch-target w-9 h-11 rounded-xl bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0 transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
             </button>
           </div>
         </div>
@@ -658,13 +665,32 @@
           </table>
         </div>
 
+        <!-- 30-Line Overflow Bar (Hidden Entries Toggle) -->
+        <div id="history-overflow-bar" class="hidden pt-1 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span id="history-overflow-text" class="text-[11px]"></span>
+          <button
+            type="button"
+            id="toggle-history-expand-btn"
+            class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-200/70 dark:bg-slate-800/80 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition cursor-pointer"
+          >
+            Show all
+          </button>
+        </div>
+
         <!-- Shared Empty State -->
         <div id="table-empty-state" class="hidden py-12 px-4 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800">
           <div class="w-12 h-12 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70 text-slate-400 flex items-center justify-center mx-auto mb-3">
             <i data-lucide="receipt" class="w-6 h-6"></i>
           </div>
-          <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">No transactions found</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add a new entry, or click <strong>Import JSON</strong> to transfer your old data.</p>
+          <p id="empty-state-title" class="text-sm font-semibold text-slate-700 dark:text-slate-300">No transactions found</p>
+          <p id="empty-state-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add a new entry, or switch to another month above.</p>
+          <button
+            type="button"
+            id="jump-latest-month-btn"
+            class="hidden mt-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/25 border border-indigo-500/25 transition"
+          >
+            View Latest Month with Data
+          </button>
         </div>
       </div>
     </section>
@@ -712,6 +738,8 @@
       THEME: 'pesoflow_theme'
     };
 
+    const HISTORY_LINE_LIMIT = 30;
+
     const STARTER_CATEGORIES = [
       { id: 'cat_inc_1', name: 'Salary', type: 'income', color: '#10b981' },
       { id: 'cat_inc_2', name: 'Freelance', type: 'income', color: '#0ea5e9' },
@@ -732,6 +760,7 @@
     let pieChartMode = 'expense';
     let barChartRange = '14';
     let categoryModalTab = 'expense';
+    let isHistoryExpanded = false;
 
     let pieChartInstance = null;
     let barChartInstance = null;
@@ -752,6 +781,17 @@
       const offset = now.getTimezoneOffset();
       const local = new Date(now.getTime() - offset * 60 * 1000);
       return local.toISOString().split('T')[0];
+    }
+
+    function getCurrentMonthISO() {
+      return getTodayISO().slice(0, 7);
+    }
+
+    function formatMonthLabel(ym) {
+      if (!ym || !/^\d{4}-\d{2}$/.test(ym)) return 'All Months';
+      const [y, m] = ym.split('-');
+      const dt = new Date(Number(y), Number(m) - 1, 1);
+      return dt.toLocaleDateString('en-PH', { month: 'short', year: 'numeric' });
     }
 
     function normalizeDateToISO(rawDate) {
@@ -848,6 +888,17 @@
     function getCategoryColor(categoryName) {
       const found = categories.find((c) => c.name.toLowerCase() === String(categoryName).toLowerCase());
       return found ? found.color : '#6366f1';
+    }
+
+    function shiftFilterMonth(delta) {
+      const monthInput = document.getElementById('filter-month');
+      const currentVal = monthInput.value || getCurrentMonthISO();
+      const [y, m] = currentVal.split('-').map(Number);
+      const shifted = new Date(y, m - 1 + delta, 1);
+      const nextYM = `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, '0')}`;
+      monthInput.value = nextYM;
+      isHistoryExpanded = false;
+      refreshDashboard();
     }
 
     // =========================================================================
@@ -1039,7 +1090,6 @@
           return;
         }
 
-        // Normalize transactions from old JSON structure
         const normalizedTx = [];
         rawTransactions.forEach((item) => {
           if (!item || typeof item !== 'object') return;
@@ -1083,7 +1133,6 @@
         );
         if (!confirmed) return;
 
-        // 1. Collect & create any missing categories
         const newCategoriesToCreate = [];
         const seenCatKeys = new Set(categories.map((c) => `${c.type}:${c.name.toLowerCase()}`));
 
@@ -1130,7 +1179,6 @@
           }
         }
 
-        // 2. Insert transactions into Supabase (or local state)
         if (isSupabaseConnected && supabaseClient) {
           const { data: insertedTx, error: txErr } = await supabaseClient
             .from('transactions')
@@ -1151,6 +1199,15 @@
           transactions = [...localRows, ...transactions];
         }
 
+        // Switch month filter to the latest imported month so user sees imported rows immediately
+        const latestImportedMonth = normalizedTx
+          .map((t) => t.date.slice(0, 7))
+          .sort((a, b) => b.localeCompare(a))[0];
+        if (latestImportedMonth) {
+          document.getElementById('filter-month').value = latestImportedMonth;
+        }
+
+        isHistoryExpanded = false;
         saveLocalState();
         refreshAllUI();
         showToast(`Na-transfer na ang ${normalizedTx.length} transactions!`, 'success');
@@ -1626,26 +1683,76 @@
     }
 
     // =========================================================================
-    // 9. RENDER TRANSACTION HISTORY
+    // 9. RENDER TRANSACTION HISTORY (PER MONTH + MAX 30 LINES)
     // =========================================================================
     function renderTransactionHistory(filteredList) {
       const mobileListEl = document.getElementById('mobile-transaction-list');
       const tbodyEl = document.getElementById('transaction-tbody');
       const emptyEl = document.getElementById('table-empty-state');
       const countLabel = document.getElementById('history-count-label');
+      const overflowBar = document.getElementById('history-overflow-bar');
+      const overflowText = document.getElementById('history-overflow-text');
+      const expandBtn = document.getElementById('toggle-history-expand-btn');
+      const jumpBtn = document.getElementById('jump-latest-month-btn');
 
-      countLabel.textContent = `Showing ${filteredList.length} ${filteredList.length === 1 ? 'transaction' : 'transactions'}`;
+      const selectedMonth = document.getElementById('filter-month').value;
+      const monthLabel = formatMonthLabel(selectedMonth);
+      const totalCount = filteredList.length;
 
-      if (filteredList.length === 0) {
+      if (totalCount === 0) {
+        countLabel.textContent = `Showing 0 transactions • ${monthLabel}`;
         mobileListEl.innerHTML = '';
         tbodyEl.innerHTML = '';
+        overflowBar.classList.add('hidden');
         emptyEl.classList.remove('hidden');
+
+        // Offer a quick button if transactions exist in another month
+        if (transactions.length > 0 && selectedMonth) {
+          const latestMonth = transactions
+            .map((t) => t.date.slice(0, 7))
+            .sort((a, b) => b.localeCompare(a))[0];
+          if (latestMonth && latestMonth !== selectedMonth) {
+            jumpBtn.textContent = `View ${formatMonthLabel(latestMonth)}`;
+            jumpBtn.dataset.targetMonth = latestMonth;
+            jumpBtn.classList.remove('hidden');
+          } else {
+            jumpBtn.classList.add('hidden');
+          }
+        } else {
+          jumpBtn.classList.add('hidden');
+        }
         return;
       }
 
       emptyEl.classList.add('hidden');
+      jumpBtn.classList.add('hidden');
 
-      mobileListEl.innerHTML = filteredList
+      const hasOverflow = totalCount > HISTORY_LINE_LIMIT;
+      const visibleList = isHistoryExpanded
+        ? filteredList
+        : filteredList.slice(0, HISTORY_LINE_LIMIT);
+      const hiddenCount = Math.max(0, totalCount - visibleList.length);
+
+      if (hasOverflow && !isHistoryExpanded) {
+        countLabel.textContent = `Showing ${visibleList.length} of ${totalCount} transactions • ${monthLabel}`;
+      } else {
+        countLabel.textContent = `Showing ${totalCount} ${totalCount === 1 ? 'transaction' : 'transactions'} • ${monthLabel}`;
+      }
+
+      if (hasOverflow) {
+        overflowBar.classList.remove('hidden');
+        if (!isHistoryExpanded) {
+          overflowText.textContent = `${hiddenCount} ${hiddenCount === 1 ? 'entry' : 'entries'} hidden (30-line view)`;
+          expandBtn.textContent = `Show all (${totalCount})`;
+        } else {
+          overflowText.textContent = `Showing all ${totalCount} entries for ${monthLabel}`;
+          expandBtn.textContent = `Hide extra (30 lines)`;
+        }
+      } else {
+        overflowBar.classList.add('hidden');
+      }
+
+      mobileListEl.innerHTML = visibleList
         .map((tx) => {
           const isIncome = tx.type === 'income';
           const color = getCategoryColor(tx.category);
@@ -1682,7 +1789,7 @@
         })
         .join('');
 
-      tbodyEl.innerHTML = filteredList
+      tbodyEl.innerHTML = visibleList
         .map((tx) => {
           const isIncome = tx.type === 'income';
           const color = getCategoryColor(tx.category);
@@ -1811,6 +1918,7 @@
       }
 
       transactions = [];
+      isHistoryExpanded = false;
       saveLocalState();
       resetEntryForm();
       refreshDashboard();
@@ -1838,7 +1946,8 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `PesoFlow_Report_${getTodayISO()}.csv`;
+      const monthTag = document.getElementById('filter-month').value || getTodayISO();
+      link.download = `PesoFlow_Report_${monthTag}.csv`;
       link.click();
       URL.revokeObjectURL(url);
       showToast('CSV report downloaded!', 'success');
@@ -1857,6 +1966,7 @@
 
       loadLocalState();
       document.getElementById('tx-date').value = getTodayISO();
+      document.getElementById('filter-month').value = getCurrentMonthISO();
       setTransactionTypeUI('expense');
       refreshAllUI();
       lucide.createIcons();
@@ -1866,6 +1976,26 @@
 
       // Clear All Data listener
       document.getElementById('clear-all-data-btn').addEventListener('click', clearAllTransactionData);
+
+      // Expand / Collapse >30 lines listener
+      document.getElementById('toggle-history-expand-btn').addEventListener('click', () => {
+        isHistoryExpanded = !isHistoryExpanded;
+        renderTransactionHistory(getFilteredTransactions());
+      });
+
+      // Jump to latest month with data button
+      document.getElementById('jump-latest-month-btn').addEventListener('click', (e) => {
+        const targetMonth = e.currentTarget.dataset.targetMonth;
+        if (targetMonth) {
+          document.getElementById('filter-month').value = targetMonth;
+          isHistoryExpanded = false;
+          refreshDashboard();
+        }
+      });
+
+      // Prev / Next Month navigation
+      document.getElementById('prev-month-btn').addEventListener('click', () => shiftFilterMonth(-1));
+      document.getElementById('next-month-btn').addEventListener('click', () => shiftFilterMonth(1));
 
       // Import JSON listeners
       const importInput = document.getElementById('import-json-input');
@@ -1946,6 +2076,12 @@
           showToast(type === 'income' ? 'Income logged!' : 'Expense logged!', 'success');
         }
 
+        // Sync month filter to the saved transaction's month so it appears immediately
+        const txMonth = date.slice(0, 7);
+        if (document.getElementById('filter-month').value && document.getElementById('filter-month').value !== txMonth) {
+          document.getElementById('filter-month').value = txMonth;
+        }
+
         saveLocalState();
         resetEntryForm();
         refreshDashboard();
@@ -1980,17 +2116,24 @@
         });
       });
 
-      // Filters
+      // Filters (reset 30-line expansion when changing filter/month)
       ['filter-search', 'filter-type', 'filter-category', 'filter-month'].forEach((id) => {
-        document.getElementById(id).addEventListener('input', refreshDashboard);
-        document.getElementById(id).addEventListener('change', refreshDashboard);
+        document.getElementById(id).addEventListener('input', () => {
+          isHistoryExpanded = false;
+          refreshDashboard();
+        });
+        document.getElementById(id).addEventListener('change', () => {
+          isHistoryExpanded = false;
+          refreshDashboard();
+        });
       });
 
       document.getElementById('reset-filters-btn').addEventListener('click', () => {
         document.getElementById('filter-search').value = '';
         document.getElementById('filter-type').value = 'all';
         document.getElementById('filter-category').value = 'all';
-        document.getElementById('filter-month').value = '';
+        document.getElementById('filter-month').value = getCurrentMonthISO();
+        isHistoryExpanded = false;
         refreshDashboard();
       });
 
