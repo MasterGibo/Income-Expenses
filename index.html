@@ -572,9 +572,21 @@
             <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               Transaction History
             </h2>
-            <p id="history-count-label" class="text-xs text-slate-500 dark:text-slate-400">
-              Showing 0 transactions
-            </p>
+            <div class="flex items-center gap-2 mt-0.5">
+              <p id="history-count-label" class="text-xs text-slate-500 dark:text-slate-400">
+                Showing 0 transactions
+              </p>
+              <span class="text-slate-300 dark:text-slate-700 text-[10px]">•</span>
+              <button
+                type="button"
+                id="clear-all-data-btn"
+                title="Clear all transaction data"
+                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium text-slate-400/60 dark:text-slate-500/70 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+              >
+                <i data-lucide="eraser" class="w-2.5 h-2.5"></i>
+                <span>Clear</span>
+              </button>
+            </div>
           </div>
 
           <div class="flex items-center gap-2">
@@ -1728,7 +1740,7 @@
     }
 
     // =========================================================================
-    // 10. TRANSACTION CRUD & EXPORT ACTIONS
+    // 10. TRANSACTION CRUD, CLEAR ALL & EXPORT ACTIONS
     // =========================================================================
     window.editTransaction = function (id) {
       const tx = transactions.find((item) => item.id === id);
@@ -1772,6 +1784,38 @@
       refreshDashboard();
       showToast('Transaction deleted.', 'info');
     };
+
+    async function clearAllTransactionData() {
+      if (transactions.length === 0 && !isSupabaseConnected) {
+        showToast('Wala nang data na buburahin.', 'info');
+        return;
+      }
+
+      const confirmed = await customConfirm(
+        'Clear All Data?',
+        `Sigurado ka bang gusto mong burahin ang lahat ng ${transactions.length} transactions${isSupabaseConnected ? ' (pati sa Supabase)' : ''} para gumawa ng bagong data? Mananatili ang iyong categories.`,
+        'Clear All'
+      );
+      if (!confirmed) return;
+
+      if (isSupabaseConnected && supabaseClient) {
+        const { error } = await supabaseClient
+          .from('transactions')
+          .delete()
+          .not('id', 'is', null);
+
+        if (error) {
+          showToast('Supabase clear error: ' + error.message, 'error');
+          return;
+        }
+      }
+
+      transactions = [];
+      saveLocalState();
+      resetEntryForm();
+      refreshDashboard();
+      showToast('Lahat ng transaction data ay nabura na. Pwede ka nang gumawa ng bagong data!', 'success');
+    }
 
     function exportToCSV() {
       const filtered = getFilteredTransactions();
@@ -1819,6 +1863,9 @@
 
       // Auto-connect to Supabase
       await tryAutoConnectSupabase();
+
+      // Clear All Data listener
+      document.getElementById('clear-all-data-btn').addEventListener('click', clearAllTransactionData);
 
       // Import JSON listeners
       const importInput = document.getElementById('import-json-input');
